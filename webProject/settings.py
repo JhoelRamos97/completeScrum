@@ -113,9 +113,9 @@ USE_I18N = True
 
 USE_TZ = True
 
-LOGIN_URL = 'signin'  # Especifica la URL de inicio de sesión
+LOGIN_URL = 'signin'
 
-LOGIN_REDIRECT_URL = 'inicio'  # Especifica la URL a la que se redirige después de iniciar sesión con éxito
+LOGIN_REDIRECT_URL = 'inicio'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/

@@ -21,4 +21,8 @@ from appProject import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.signin, name='signin'),
+    path('inicio/', views.inicio, name='inicio'),
+    path('read_activos/', views.read_activos, name='read_activos'),
+    path('read_bodegas/', views.read_bodegas, name='read_bodegas'),
+    path('read_tipos_activos/', views.read_tipos_activos, name='read_tipos_activos'),
 ]

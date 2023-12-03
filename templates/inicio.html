@@ -1,0 +1,146 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+
+<head>
+  <title>Donde estamos</title>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS v5.2.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+</head>
+
+<body>
+    <!-- HEADER -->
+    <header>
+      <div class="bg-dark text-white py-4 text-center">
+        <h1 class="display-4">Sistema de inventario</h1>
+        <p class="lead">Seleccione la opcion de lo que desea hacer:</p>
+      </div>
+      <nav class="navbar navbar-expand-lg bg-body-tertiary  bg-dark-subtle">
+        <div class="container-fluid">
+          <p class="navbar-brand">Sistema de inventario</p>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/">Inicio</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/admin/">Administracion</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/read_activos/">Activos</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/read_bodegas/">Bodega</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/read_tipos_activos/">Tipos de activos</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <!-- HEADER -->
+
+    <!-- MAIN -->
+    <main>
+      <div class="container mt-4">
+        <div class="row justify-content-center">
+          <div class="col-md-3 mb-4">
+            <div class="card bg-dark mx-auto" style="width: 16rem">
+              <img src="{% static 'informe.jpg' %}" class="card-img-top" alt="Informe de Ventas"/>
+              <div class="card-header bg-primary text-white text-center">
+                <h2 class="mb-0">Generar informe</h2>
+              </div>
+              <div class="card-body text-white text-center">
+                <p>Descarga un informe con todos los movientos desde el tiempo seleccionado</p>
+                <a href="#" class="btn btn-warning btn-block">Generar informe</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 mb-4">
+            <div class="card bg-dark mx-auto" style="width: 16rem">
+              <img src="{% static 'reponer.jpg' %}" class="card-img-top" alt="Administrar Productos"/>
+              <div class="card-header bg-primary text-white text-center">
+                <h2 class="mb-0">Administrar activos</h2>
+              </div>
+              <div class="card-body text-white text-center">
+                <p>Ve los activos en inventario, eliminalos, actualizalos o agrega mas.</p>
+                <a href="{% url 'read_activos' %}" class="btn btn-warning btn-block" role="button">Administrar activos</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 mb-4">
+            <div class="card bg-dark mx-auto" style="width: 16rem">
+              <img src="{% static 'reloj.jpg' %}" class="card-img-top" alt="Administrar Jornadas"/>
+              <div class="card-header bg-primary text-white text-center">
+                <h2 class="mb-0">Administrar bodegas</h2>
+              </div>
+              <div class="card-body text-white text-center">
+                <p>Ve las bodegas, los activos dentro, editar las bodegas, eliminar bodega o agregar mas bodegas</p>
+                <a href="{% url 'read_bodegas' %}" class="btn btn-warning btn-block" role="button">Administrar bodegas</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 mb-4">
+            <div class="card bg-dark mx-auto" style="width: 16rem">
+              <img src="{% static 'informe.jpg' %}" class="card-img-top" alt="Informe de Ventas"/>
+              <div class="card-header bg-primary text-white text-center">
+                <h2 class="mb-0">Administracion de tipos de activos</h2>
+              </div>
+              <div class="card-body text-white text-center">
+                <p>Ve los tipos de activos disponibles, eliminalos, actualizalos o agrega mas</p>
+                <a href="{% url 'read_tipos_activos' %}" class="btn btn-warning btn-block">Administrar tipos de activos</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="row justify-content-center mt-4">
+            <div class="col-md-4 text-center">
+              <a href="/" class="btn btn-dark btn-lg btn-block" style="color: white">Cerrar sesión</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- MAIN -->
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="alert alert-dark text-center py-4 mt-5">
+            <p class="lead">Desarrollado por el equipo de complete scrum</p>
+        </div>
+    </footer>
+    <!-- FOOTER -->
+
+    <!-- Bootstrap JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+    integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous">
+    </script>
+</body>
+
+</html>
