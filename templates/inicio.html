@@ -3,7 +3,7 @@
 <html lang="es">
 
 <head>
-  <title>Donde estamos</title>
+  <title>Sistema de ventas</title>
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -38,19 +38,19 @@
           <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="/">Inicio</a>
+                <a class="nav-link active" aria-current="page" href="{% url 'inicio' %}">Inicio</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="/admin/">Administracion</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/read_activos/">Activos</a>
+                <a class="nav-link" href="{% url 'read_activo' %}">Activos</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/read_bodegas/">Bodega</a>
+                <a class="nav-link" href="{% url 'read_bodega' %}">Bodegas</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/read_tipos_activos/">Tipos de activos</a>
+                <a class="nav-link" href="{% url 'read_tipo_activo' %}">Tipos de activos</a>
               </li>
             </ul>
           </div>
@@ -78,26 +78,26 @@
 
           <div class="col-md-3 mb-4">
             <div class="card bg-dark mx-auto" style="width: 16rem">
-              <img src="{% static 'reponer.jpg' %}" class="card-img-top" alt="Administrar Productos"/>
+              <img src="{% static 'producto.jpg' %}" class="card-img-top" alt="Administrar Productos"/>
               <div class="card-header bg-primary text-white text-center">
                 <h2 class="mb-0">Administrar activos</h2>
               </div>
               <div class="card-body text-white text-center">
                 <p>Ve los activos en inventario, eliminalos, actualizalos o agrega mas.</p>
-                <a href="{% url 'read_activos' %}" class="btn btn-warning btn-block" role="button">Administrar activos</a>
+                <a href="{% url 'read_activo' %}" class="btn btn-warning btn-block" role="button">Administrar activos</a>
               </div>
             </div>
           </div>
 
           <div class="col-md-3 mb-4">
             <div class="card bg-dark mx-auto" style="width: 16rem">
-              <img src="{% static 'reloj.jpg' %}" class="card-img-top" alt="Administrar Jornadas"/>
+              <img src="{% static 'reponer.jpg' %}" class="card-img-top" alt="Administrar Jornadas"/>
               <div class="card-header bg-primary text-white text-center">
                 <h2 class="mb-0">Administrar bodegas</h2>
               </div>
               <div class="card-body text-white text-center">
                 <p>Ve las bodegas, los activos dentro, editar las bodegas, eliminar bodega o agregar mas bodegas</p>
-                <a href="{% url 'read_bodegas' %}" class="btn btn-warning btn-block" role="button">Administrar bodegas</a>
+                <a href="{% url 'read_bodega' %}" class="btn btn-warning btn-block" role="button">Administrar bodegas</a>
               </div>
             </div>
           </div>
@@ -110,14 +110,14 @@
               </div>
               <div class="card-body text-white text-center">
                 <p>Ve los tipos de activos disponibles, eliminalos, actualizalos o agrega mas</p>
-                <a href="{% url 'read_tipos_activos' %}" class="btn btn-warning btn-block">Administrar tipos de activos</a>
+                <a href="{% url 'read_tipo_activo' %}" class="btn btn-warning btn-block">Administrar tipos de activos</a>
               </div>
             </div>
           </div>
 
           <div class="row justify-content-center mt-4">
             <div class="col-md-4 text-center">
-              <a href="/" class="btn btn-dark btn-lg btn-block" style="color: white">Cerrar sesión</a>
+              <a href="{% url 'singout' %}" class="btn btn-dark btn-lg btn-block" style="color: white">Cerrar sesión</a>
             </div>
           </div>
         </div>

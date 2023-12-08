@@ -37,19 +37,19 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="/">Inicio</a>
+                            <a class="nav-link active" aria-current="page" href="{% url 'inicio' %}">Inicio</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="/admin/">Administracion</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/read_activos/">Activos</a>
+                            <a class="nav-link" href="{% url 'read_activo' %}">Activos</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/read_bodegas/">Bodega</a>
+                            <a class="nav-link" href="{% url 'read_bodega' %}">Bodegas</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/read_tipos_activos/">Tipos de activos</a>
+                            <a class="nav-link" href="{% url 'read_tipo_activo' %}">Tipos de activos</a>
                         </li>
                     </ul>
                 </div>

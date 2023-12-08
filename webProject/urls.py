@@ -21,8 +21,21 @@ from appProject import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.signin, name='signin'),
+    path('sigout/', views.singout, name='singout'),
     path('inicio/', views.inicio, name='inicio'),
-    path('read_activos/', views.read_activos, name='read_activos'),
-    path('read_bodegas/', views.read_bodegas, name='read_bodegas'),
-    path('read_tipos_activos/', views.read_tipos_activos, name='read_tipos_activos'),
+
+    path('activos/', views.read_activo, name='read_activo'),
+    path('agregar-activo/', views.add_activo, name='add_activo'),
+    path('actualizar-activo/<int:id>/', views.edit_activo, name='edit_activo'),
+    path('eliminar-activo/<int:id>/', views.del_activo, name='del_activo'),
+
+    path('bodegas/', views.read_bodega, name='read_bodega'),
+    path('agregar-bodega/', views.add_bodega, name='add_bodega'),
+    path('actualizar-bodega/<int:id>/', views.edit_bodega, name='edit_bodega'),
+    path('eliminar-bodega/<int:id>/', views.del_bodega, name='del_bodega'),
+
+    path('tipos-de-activos/', views.read_tipo_activo, name='read_tipo_activo'),
+    path('agregar-tipo-de-activo/', views.read_tipo_activo, name='add_tipo_activo'),
+    path('actualizar-tipo-de-activo/<int:id>/', views.edit_tipo_activo, name='edit_tipo_activo'),
+    path('eliminar-tipo-de-activo/<int:id>/', views.del_tipo_activo, name='del_tipo_activo'),
 ]
