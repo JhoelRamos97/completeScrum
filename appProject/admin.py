@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Activo, Bodega, Tipo_activo, Tipo_transaccion, Movimiento_activo
+from .models import Activo, Bodega, Tipo_activo, Movimiento
 # Register your models here.
 
 @admin.register(Activo)
@@ -14,10 +14,6 @@ class BodegaAdmin(admin.ModelAdmin):
 class Tipo_activoAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'marca', 'unidad_inacap')
 
-@admin.register(Tipo_transaccion)
-class Tipo_transaccionAdmin(admin.ModelAdmin):
-    list_display = ('nombre',)
-
-@admin.register(Movimiento_activo)
-class Movimiento_activoAdmin(admin.ModelAdmin):
-    list_display = ('fecha', 'cantidad', 'activo', 'id_tipo_activo', 'id_user')
+@admin.register(Movimiento)
+class MovimientoAdmin(admin.ModelAdmin):
+    list_display = ('fecha', 'nombre_activo', 'cantidad', 'nombre_bodega','id_user')

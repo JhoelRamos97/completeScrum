@@ -2,7 +2,7 @@
 <html lang="es">
 
 <head>
-  <title>Tipos de activos</title>
+  <title>{{ bodega.nombre }}</title>
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -17,8 +17,8 @@
     <!-- HEADER -->
     <header>
         <div class="bg-dark text-white py-4 text-center">
-            <h1 class="display-4">Tipos de activos</h1>
-            <p class="lead">Seleccione lo que desea hacer:</p>
+            <h1 class="display-4">Bodega: {{ bodega.nombre }}</h1>
+            <p class="lead">Seleccione la opcion que desea hacer:</p>
         </div>
         <nav class="navbar navbar-expand-lg bg-body-tertiary  bg-dark-subtle">
             <div class="container-fluid">
@@ -64,39 +64,66 @@
     <!-- MAIN -->
     <main>
         <div class="container">
+            <div class="alert alert-dark py-4 mt-5">
+                <h2 class="text-center">Datos de la bodega actual:</h2>
+                <h4>Nombre:    {{ bodega.nombre }}</h4>
+                <h4>Ubicacion: {{ bodega.ubicacion }}</h4>
+                <h4>Piso:      {{ bodega.piso }}</h4>
+                <h4>Edificio:  {{ bodega.edificio }}</h4>
+                <h4>Capacidad: {{ bodega.capacidad }}</h4>
+            </div>
+            <div class="text-center">
+                <a href="{% url 'edit_bodega' bodega.id %}" class="btn btn-primary btn-lg text-white">Actualizar datos</a>
+                <a href="{% url 'del_bodega' bodega.id %}" class="btn btn-danger btn-lg text-white">Eliminar bodega</a>
+            </div>
+            <h2>Activos en la bodega:</h2>
             <div class="table-responsive">
                 <table class="table table-striped table-bordered table-dark">
                     <thead class="thead-dark text-center">
                         <tr>
                             <th scope="col">Nombre</th>
-                            <th scope="col">Marca</th>
-                            <th scope="col">Unidad inacap</th>
-                            <th></th>
+                            <th scope="col">Cantidad</th>
+                            <th scope="col">Codigo de barras</th>
+                            <th scope="col">Fecha de contable</th>
+                            <th scope="col">Fecha de adquisición</th>
+                            <th scope="col">Vida util total</th>
+                            <th scope="col">Vida util restante</th>
+                            <th scope="col">Costo de alta</th>
+                            <th scope="col">Valor neto</th>
+                            <th scope="col">Tipo de activo</th>
+                            <th scope="col"></th>
                         </tr>
                     </thead>
                     <tbody class="text-center tbody-dark">
-                        {% for t in tipos_activos %}
+                        {% for a in activos %}
                         <tr>
-                            <td scope="row">{{ t.nombre }}</td>
-                            <td scope="row">{{ t.marca }}</td>
-                            <td scope="row">{{ t.unidad_inacap }}</td>
+                            <td scope="row">{{ a.nombre }}</td>
+                            <td>{{ a.cantidad }}</td>
+                            <td>{{ a.codigo_barra }}</td>
+                            <td>{{ a.fecha_contable }}</td>
+                            <td>{{ a.fecha_adquisicion }}</td>
+                            <td>{{ a.vida_util_total }}</td>
+                            <td>{{ a.vida_util_restante }}</td>
+                            <td>{{ a.costo_alta }}</td>
+                            <td>{{ a.valor_neto }}</td>
+                            <td>{{ a.id_tipo_activo.nombre }}</td>
                             <td>
-                                <a name="" id="" href="{% url 'edit_tipo_activo' t.id %}" role="button" class="btn btn-primary"><i class="bi bi-pencil"></i></a>
-                                <a name="" id="" href="{% url 'del_tipo_activo' t.id %}" role="button" class="btn btn-danger"><i class="bi bi-trash"></i></a>
+                                <a name="" id="" href="{% url 'edit_activo_bodega' a.id bodega.id %}" role="button" class="btn btn-primary">Mover activo a otra bodega</a>
+                                <a name="" id="" href="{% url 'del_activo_bodega' a.id bodega.id %}" role="button" class="btn btn-danger">Eliminar activo de esta bodega</a>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
                 <div class="text-center">
-                    <a href="{% url 'add_tipo_activo' %}" class="btn btn-success btn-lg text-white">Agregar tipo de activo</a>
-                    <a href="{% url 'inicio' %}" class="btn btn-dark btn-lg text-white">Volver al menu</a>
-                  </div>
+                    <a href="{% url 'add_activo_bodega' bodega.id %}" class="btn btn-success btn-lg text-white">Agregar activo a bodega</a>
+                    <a href="{% url 'read_bodega'%}" class="btn btn-dark btn-lg text-white">Volver al menu</a>
+                </div>
             </div>
         </div>
     </main>
     <!-- MAIN -->
-    <br><br>
+
     <!-- FOOTER -->
     <footer>
         <div class="alert alert-dark text-center py-4 mt-5">

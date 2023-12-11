@@ -51,6 +51,9 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'read_tipo_activo' %}">Tipos de activos</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'singout' %}">Cerrar secion</i></a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -84,7 +87,7 @@
                         <tr>
                             <td scope="row">{{ a.nombre }}</td>
                             <td>{{ a.cantidad }}</td>
-                            <td>{{ a.codigo_bara }}</td>
+                            <td>{{ a.codigo_barra }}</td>
                             <td>{{ a.fecha_contable }}</td>
                             <td>{{ a.fecha_adquisicion }}</td>
                             <td>{{ a.vida_util_total }}</td>
@@ -94,17 +97,17 @@
                             <td>{{ a.id_tipo_activo.nombre }}</td>
                             <td>{{ a.id_bodega.nombre }}</td>
                             <td>
-                                <a name="" id="" href="{% url 'edit_activo' a.id %}" role="button"><i class="bi bi-pencil"></i></a>
-                                <a name="" id="" href="{% url 'del_activo' a.id %}" role="button"><i class="bi bi-trash"></i></a>
+                                <a name="" id="" href="{% url 'edit_activo' a.id %}" role="button"  class="btn btn-primary"><i class="bi bi-pencil"></i></a>
+                                <a name="" id="" href="{% url 'del_activo' a.id %}" role="button" class="btn btn-danger"><i class="bi bi-trash"></i></a>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
                 <div class="text-center">
-                    <a href="{% url 'add_activo' %}" class="btn btn-primary btn-lg text-white">Agregar activo</a>
+                    <a href="{% url 'add_activo' %}" class="btn btn-success btn-lg text-white">Agregar activo</a>
                     <a href="{% url 'inicio' %}" class="btn btn-dark btn-lg text-white">Volver al menu</a>
-                  </div>
+                </div>
             </div>
         </div>
     </main>

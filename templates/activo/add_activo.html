@@ -2,7 +2,7 @@
 <html lang="es">
 
 <head>
-  <title>{{accion}} activo</title>
+  <title>{{ accion }} activo</title>
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -17,8 +17,8 @@
     <!-- HEADER -->
     <header>
         <div class="bg-dark text-white py-4 text-center">
-            <h1 class="display-4">Añadir activo</h1>
-            <p class="lead">Agregue los datos del activo que desea añadir al inventario:</p>
+            <h1 class="display-4">{{ accion }} activo</h1>
+            <p class="lead">{{ descripcion }}</p>
         </div>
         <nav class="navbar navbar-expand-lg bg-body-tertiary  bg-dark-subtle">
             <div class="container-fluid">
@@ -51,21 +51,24 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'read_tipo_activo' %}">Tipos de activos</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'singout' %}">Cerrar secion</i></a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
     <!-- HEADER -->
-
+    <br><br>
     <!-- MAIN -->
     <main>
         <div class="container">
             <form method="POST">
                 {% csrf_token %}
-                {{form.as_p}}
-                <a href="{% url 'read_activo' %}" class="btn btn-danger">Cancelar</a>
-                <button type="submit" class="btn btn-primary">Añadir activos</button>
+                {{ form.as_p }}
+                <a href="{% url 'read_activo' %}" class="btn btn-dark">Cancelar</a>
+                <button type="submit" class="btn btn-success">{{ accion }} activo</button>
             </form>
         </div>
     </main>

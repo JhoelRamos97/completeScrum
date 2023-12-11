@@ -53,15 +53,16 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'read_tipo_activo' %}">Tipos de activos</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'singout' %}">Cerrar secion</i></a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
     <!-- HEADER -->
-
     <br><br>
-
     <!-- MAIN -->
     <main>
         <div class="container">
@@ -86,14 +87,14 @@
                             <td>{{ b.edificio }}</td>
                             <td>{{ b.capacidad }}</td>
                             <td>
-                                <a name="" id="" href="#" role="button"><i class="bi bi-eye"></i></a>
+                                <a name="" id="" href="{% url 'read_activo_bodega' b.id %}" role="button" class="btn btn-primary"><i class="bi bi-eye"></i></a>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
                 <div class="text-center">
-                    <a href="{% url 'add_bodega' %}" class="btn btn-primary btn-lg text-white">Agregar bodega</a>
+                    <a href="{% url 'add_bodega' %}" class="btn btn-success btn-lg text-white">Agregar bodega</a>
                     <a href="{% url 'inicio' %}" class="btn btn-dark btn-lg text-white">Volver al menu</a>
                 </div>
             </div>

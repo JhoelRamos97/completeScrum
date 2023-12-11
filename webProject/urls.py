@@ -1,19 +1,3 @@
-"""
-URL configuration for webProject project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path
 from appProject import views
@@ -35,7 +19,12 @@ urlpatterns = [
     path('eliminar-bodega/<int:id>/', views.del_bodega, name='del_bodega'),
 
     path('tipos-de-activos/', views.read_tipo_activo, name='read_tipo_activo'),
-    path('agregar-tipo-de-activo/', views.read_tipo_activo, name='add_tipo_activo'),
+    path('agregar-tipo-de-activo/', views.add_tipo_activo, name='add_tipo_activo'),
     path('actualizar-tipo-de-activo/<int:id>/', views.edit_tipo_activo, name='edit_tipo_activo'),
     path('eliminar-tipo-de-activo/<int:id>/', views.del_tipo_activo, name='del_tipo_activo'),
+
+    path('bodega/<int:id>/', views.read_activo_bodega, name='read_activo_bodega'),
+    path('agregar-activo-bodega/<int:id>/', views.add_activo_bodega, name='add_activo_bodega'),
+    path('mover-activo-bodega/<int:id_bodega>/<int:id_activo>/', views.edit_activo_bodega, name='edit_activo_bodega'),
+    path('quitar-activo-bodega/<int:id_bodega>/<int:id_activo>/', views.del_activo_bodega, name='del_activo_bodega'),
 ]
