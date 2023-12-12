@@ -54,13 +54,26 @@ def add_activo(req):
     if req.method == "POST":
         form = FormActivo(req.POST)
         if form.is_valid():
+            print(form.bodega)
             form.save()
-            movimiento = Movimiento(
-                fecha=datetime.now(),
-                cantidad='Change me',
-                activo='Change me',#Activo recien creado
-                tipo_movimiento='AD_ac',
-                id_user=req.user
+            activo = Activo.objects.last().id
+            if activo.bodega == None:
+                movimiento = Movimiento(
+                    fecha=datetime.now(),
+                    cantidad=activo.cantidad,
+                    nombre_activo=activo.nombre,
+                    nombre_bodega=None,
+                    tipo_movimiento='AD_ac',
+                    user=req.user
+                )
+            else:
+                movimiento = Movimiento(
+                    fecha=datetime.now(),
+                    cantidad=activo.cantidad,
+                    nombre_activo=activo.nombre,
+                    nombre_bodega=activo.bodega.nombre,
+                    tipo_movimiento='AD_ac',
+                    user=req.user
                 )
             movimiento.save()
             return redirect('/activos/')
@@ -77,13 +90,24 @@ def edit_activo(req, id):
         form = FormActivo(req.POST, instance=activo)
         if form.is_valid():
             form.save()
-            movimiento = Movimiento(
-                fecha=datetime.now(),
-                cantidad='Change me',
-                activo='Change me',#Activo recien creado
-                tipo_movimiento='ED_ac',
-                id_user=req.user
+            if activo.bodega == None:
+                movimiento = Movimiento(
+                    fecha=datetime.now(),
+                    cantidad=activo.cantidad,
+                    nombre_activo=activo.nombre,
+                    nombre_bodega=None,
+                    tipo_movimiento='ED_ac',
+                    user=req.user
                 )
+            else:
+                movimiento = Movimiento(
+                    fecha=datetime.now(),
+                    cantidad=activo.cantidad,
+                    nombre_activo=activo.nombre,
+                    nombre_bodega=activo.bodega.nombre,
+                    tipo_movimiento='ED_ac',
+                    user=req.user
+                    )
             movimiento.save()
             return redirect('/activos/')
 
@@ -93,15 +117,26 @@ def edit_activo(req, id):
 @login_required
 def del_activo(req, id):
     activo = Activo.objects.get(id=id)
-    activo.delete()
-    movimiento = Movimiento(
-        fecha=datetime.now(),
-        cantidad='Change me',
-        activo='Change me',#Activo recien creado
-        tipo_movimiento='DE_ac',
-        id_user=req.user
-        )
+    if activo.bodega == None:
+        movimiento = Movimiento(
+            fecha=datetime.now(),
+            cantidad=activo.cantidad,
+            nombre_activo=activo.nombre,
+            nombre_bodega=None,
+            tipo_movimiento='DE_ac',
+            user=req.user
+            )
+    else:
+        movimiento = Movimiento(
+            fecha=datetime.now(),
+            cantidad=activo.cantidad,
+            nombre_activo=activo.nombre,
+            nombre_bodega=activo.bodega.nombre,
+            tipo_movimiento='DE_ac',
+            user=req.user
+            )
     movimiento.save()
+    activo.delete()
     return redirect('/activos/')
 #                                                     #
 #######################################################
@@ -122,12 +157,14 @@ def add_bodega(req):
         form = FormBodega(req.POST)
         if form.is_valid():
             form.save()
+            bodega = Bodega.objects.last().id
             movimiento = Movimiento(
                 fecha=datetime.now(),
                 cantidad=None,
-                activo=None,
+                nombre_activo=None,
+                nombre_bodega=bodega.nombre,
                 tipo_movimiento='AD_bo',
-                id_user=req.user
+                user=req.user
                 )
             movimiento.save()
             return redirect('/bodegas/')
@@ -147,9 +184,10 @@ def edit_bodega(req, id):
             movimiento = Movimiento(
                 fecha=datetime.now(),
                 cantidad=None,
-                activo=None,
+                nombre_activo=None,
+                nombre_bodega=bodega.nombre,
                 tipo_movimiento='ED_bo',
-                id_user=req.user
+                user=req.user
                 )
             movimiento.save()
             return redirect('/bodegas/')
@@ -160,15 +198,16 @@ def edit_bodega(req, id):
 @login_required
 def del_bodega(req, id):
     bodega = Bodega.objects.get(id=id)
-    bodega.delete()
     movimiento = Movimiento(
         fecha=datetime.now(),
         cantidad=None,
-        activo=None,
+        nombre_activo=None,
+        nombre_bodega=bodega.nombre,
         tipo_movimiento='DE_bo',
-        id_user=req.user
+        user=req.user
         )
     movimiento.save()
+    bodega.delete()
     return redirect('/bodegas/')
 #                                                     #
 #######################################################
@@ -192,12 +231,13 @@ def add_tipo_activo(req):
             movimiento = Movimiento(
                 fecha=datetime.now(),
                 cantidad=None,
-                activo=None,
+                nombre_activo=None,
+                nombre_bodega=None,
                 tipo_movimiento='AD_ta',
-                id_user=req.user
+                user=req.user
                 )
             movimiento.save()
-            return redirect('/tipos_de_activos/')
+            return redirect('/tipos-de-activos/')
 
     data = {'form': form, 'accion': 'Agregar', 'descripcion': 'Agregue los atribulos del tipo de activo que desea añadir.'}
     return render(req, 'tipo_activo/add_tipo_activo.html', data)
@@ -214,9 +254,10 @@ def edit_tipo_activo(req, id):
             movimiento = Movimiento(
                 fecha=datetime.now(),
                 cantidad=None,
-                activo=None,
+                nombre_activo=None,
+                nombre_bodega=None,
                 tipo_movimiento='ED_ta',
-                id_user=req.user
+                user=req.user
                 )
             movimiento.save()
             return redirect('/tipos_de_activos/')
@@ -231,9 +272,10 @@ def del_tipo_activo(req, id):
     movimiento = Movimiento(
         fecha=datetime.now(),
         cantidad=None,
-        activo=None,
+        nombre_activo=None,
+        nombre_bodega=None,
         tipo_movimiento='DE_ta',
-        id_user=req.user
+        user=req.user
         )
     movimiento.save()
     return read_tipo_activo(req)
@@ -245,7 +287,7 @@ def del_tipo_activo(req, id):
 @login_required
 def read_activo_bodega(req, id):
     bodega = Bodega.objects.get(id=id)
-    activos = Activo.objects.filter(id_bodega=id)
+    activos = Activo.objects.filter(bodega=id)
     data = {'bodega': bodega, 'activos': activos}
     return render(req, 'activo_bodega/read_activo_bodega.html', data)
 
@@ -256,16 +298,17 @@ def add_activo_bodega(req, id):
 
     if req.method == 'POST':
         activos_seleccionados = req.POST.getlist('activo_seleccionado')
-        Activo.objects.filter(id__in=activos_seleccionados).update(id_bodega=id)
+        Activo.objects.filter(id__in=activos_seleccionados).update(bodega=id)
         
         for activo_id in activos_seleccionados:
             activo_actual = Activo.objects.get(id=activo_id)
             movimiento = Movimiento(
                 fecha=datetime.now(),
                 cantidad=activo_actual.cantidad,
-                activo=activo_actual,
+                nombre_activo=activo_actual.nombre,
+                nombre_bodega=bodega.nombre,
                 tipo_movimiento='AD_ab',
-                id_user=req.user
+                user=req.user
             )
             movimiento.save()
         
@@ -287,9 +330,10 @@ def edit_activo_bodega(req, id_bodega, id_activo):
         movimiento = Movimiento(
             fecha=datetime.now(),
             cantidad=activo.cantidad,
-            activo=activo,
+            nombre_activo=activo.nombre,
+            nombre_bodega=bodega.nombre,
             tipo_movimiento='ED_ab',
-            id_user=req.user
+            user=req.user
             )
         movimiento.save()
         return redirect(f'/bodega/{bodega_selecionada.id}/')
@@ -301,20 +345,25 @@ def edit_activo_bodega(req, id_bodega, id_activo):
 def del_activo_bodega(req, id_bodega, id_activo):
     activo = Activo.objects.get(id=id_activo)
     activo.id_bodega = None
-    activo.save()
     movimiento = Movimiento(
         fecha=datetime.now(),
         cantidad=activo.cantidad,
-        activo=activo,
+        nombre_activo=activo.nombre,
         tipo_movimiento='DE_ab',
-        id_user=req.user
+        user=req.user
         )
     movimiento.save()
+    activo.save()
     return redirect(f'/bodega/{id_bodega}/')
 #                                                     #
 #######################################################
 
-def generar_informe(req, fecha_inicio, fecha_final):
+def read_movimiento(req):
+    movimientos = Movimiento.objects.all()
+    data = {'movimientos': movimientos}
+    return render(req, 'read_movimiento.html', data)
+
+def generar_pdf(req, fecha_inicio, fecha_final):
     movimientos = Movimiento.objects.all()
     print(movimientos)
     

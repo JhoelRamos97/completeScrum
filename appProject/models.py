@@ -30,8 +30,8 @@ class Activo(models.Model):
     vida_util_restante = models.IntegerField()
     costo_alta = models.IntegerField()
     valor_neto = models.IntegerField()
-    id_tipo_activo = models.ForeignKey(Tipo_activo, on_delete=models.CASCADE)
-    id_bodega = models.ForeignKey(Bodega, on_delete=models.CASCADE, blank=True, null=True)
+    tipo_activo = models.ForeignKey(Tipo_activo, on_delete=models.CASCADE)
+    bodega = models.ForeignKey(Bodega, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return self.nombre
@@ -54,10 +54,10 @@ class Movimiento(models.Model):
     ]
     fecha = models.DateTimeField(blank=False, null=False)
     tipo_movimiento = models.CharField(max_length=5, choices=tipo_movimiento_CHOICES, default='Defau', blank=False, null=False)
-    nombre_activo = models.ForeignKey(Activo, on_delete=models.CASCADE, blank=True, null=True)
+    nombre_activo = models.CharField(max_length=50, blank=False, null=True)
     cantidad = models.PositiveIntegerField(blank=True, null=True)
-    nombre_bodega = models.CharField(max_length=50)
-    id_user = models.ForeignKey(User, on_delete=models.CASCADE, blank=False, null=False)
+    nombre_bodega = models.CharField(max_length=50, blank=False, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=False, null=False)
 
     def __str__(self):
         return self.fecha

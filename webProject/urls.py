@@ -7,6 +7,8 @@ urlpatterns = [
     path('', views.signin, name='signin'),
     path('sigout/', views.singout, name='singout'),
     path('inicio/', views.inicio, name='inicio'),
+    path('movimientos/', views.read_movimiento, name='read_movimiento'),
+    path('generar-informe/', views.generar_pdf, name='generar_pdf'),
 
     path('activos/', views.read_activo, name='read_activo'),
     path('agregar-activo/', views.add_activo, name='add_activo'),

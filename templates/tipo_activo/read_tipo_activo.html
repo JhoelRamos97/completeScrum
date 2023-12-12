@@ -43,6 +43,9 @@
                             <a class="nav-link" href="/admin/">Administracion</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="{% url 'read_movimiento' %}" >Movimientos</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="{% url 'read_activo' %}">Activos</a>
                         </li>
                         <li class="nav-item">
@@ -91,7 +94,7 @@
                 <div class="text-center">
                     <a href="{% url 'add_tipo_activo' %}" class="btn btn-success btn-lg text-white">Agregar tipo de activo</a>
                     <a href="{% url 'inicio' %}" class="btn btn-dark btn-lg text-white">Volver al menu</a>
-                  </div>
+                </div>
             </div>
         </div>
     </main>

@@ -4,7 +4,7 @@ from .models import Activo, Bodega, Tipo_activo, Movimiento
 
 @admin.register(Activo)
 class ActivoAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'cantidad', 'descripcion', 'codigo_barra', 'fecha_contable', 'fecha_adquisicion', 'vida_util_total', 'vida_util_restante', 'costo_alta', 'valor_neto', 'id_tipo_activo', 'id_bodega')
+    list_display = ('nombre', 'cantidad', 'descripcion', 'codigo_barra', 'fecha_contable', 'fecha_adquisicion', 'vida_util_total', 'vida_util_restante', 'costo_alta', 'valor_neto', 'tipo_activo', 'bodega')
 
 @admin.register(Bodega)
 class BodegaAdmin(admin.ModelAdmin):
@@ -16,4 +16,4 @@ class Tipo_activoAdmin(admin.ModelAdmin):
 
 @admin.register(Movimiento)
 class MovimientoAdmin(admin.ModelAdmin):
-    list_display = ('fecha', 'nombre_activo', 'cantidad', 'nombre_bodega','id_user')
+    list_display = ('fecha', 'tipo_movimiento', 'nombre_activo', 'cantidad', 'nombre_bodega','user')

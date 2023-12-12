@@ -44,6 +44,9 @@
                 <a class="nav-link" href="/admin/">Administracion</a>
               </li>
               <li class="nav-item">
+                <a class="nav-link" href="{% url 'read_movimiento' %}" >Movimientos</a>
+              </li>
+              <li class="nav-item">
                 <a class="nav-link" href="{% url 'read_activo' %}">Activos</a>
               </li>
               <li class="nav-item">
@@ -73,8 +76,8 @@
                 <h2 class="mb-0">Generar informe</h2>
               </div>
               <div class="card-body text-white text-center">
-                <p>Descarga un informe con todos los movientos desde el tiempo seleccionado</p>
-                <a href="#" class="btn btn-warning btn-block">Generar informe</a>
+                <p>Ve todos los movimiento que se hacen hecho con el sistema y descarga un informe con dicha informacion.</p>
+                <a href="{% url 'read_movimiento' %}" class="btn btn-warning btn-block">Generar informe</a>
               </div>
             </div>
           </div>
