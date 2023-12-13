@@ -4,9 +4,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import FileResponse
+from django.utils import timezone
 from .forms import FormBodega, FormTipoActivo, FormActivo
 from .models import Bodega, Tipo_activo, Activo, Movimiento
-from datetime import datetime
+from datetime import datetime, timedelta
 import io
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
@@ -363,14 +364,14 @@ def del_activo_bodega(req, id_bodega, id_activo):
 
 @login_required
 def read_movimiento(req):
-    movimientos = Movimiento.objects.all()
+    movimientos = Movimiento.objects.all().order_by('-fecha')
     data = {'movimientos': movimientos}
     return render(req, 'read_movimiento.html', data)
 
 @login_required
-def generar_pdf(req, fecha_inicio, fecha_final):
-    movimientos = Movimiento.objects.all().order_by('-fecha')
-    print(movimientos)
+def generar_pdf(req):
+    fecha_hace_un_mes = timezone.now() - timedelta(days=30)
+    movimientos = Movimiento.objects.filter(fecha__gte=fecha_hace_un_mes).order_by('-fecha')
     
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter)
@@ -378,8 +379,60 @@ def generar_pdf(req, fecha_inicio, fecha_final):
     styles = getSampleStyleSheet()
 
     # Añade un título al PDF
-    titulo = Paragraph(f'Informe de sistema de inventario desde {fecha_inicio} hasta {fecha_final}', styles['Title'])
+    titulo = Paragraph(f'Informe de todos los movimientos del sistema de inventario durante el ultimo mes', styles['Title'])
     elements.append(titulo)
+
+    for m in movimientos:
+        if m.tipo_movimiento == 'AD_ac':
+            tipo_movimiento = 'Se agrego un activo al inventario'
+        elif m.tipo_movimiento == 'ED_ac':
+            tipo_movimiento = 'Se actualizo un activo en inventario'
+        elif m.tipo_movimiento == 'DE_ac':
+            tipo_movimiento = 'Se elimino un activo del inventario'
+        elif m.tipo_movimiento == 'AD_bo':
+            tipo_movimiento = 'Se registro una nueva bodega'
+        elif m.tipo_movimiento == 'ED_bo':
+            tipo_movimiento = 'Se actualizaron datos de una bodega'
+        elif m.tipo_movimiento == 'DE_bo':
+            tipo_movimiento = 'Se elimino una bodega del registro'
+        elif m.tipo_movimiento == 'AD_ta':
+            tipo_movimiento = 'Se agrego un nuevo tipo de activo'
+        elif m.tipo_movimiento == 'ED_ta':
+            tipo_movimiento = 'Se actualizaron datos de un tipo de activo'
+        elif m.tipo_movimiento == 'DE_ta':
+            tipo_movimiento = 'Se elimino un tipo de activo del registro'
+        elif m.tipo_movimiento == 'AD_ab':
+            tipo_movimiento = 'Se agrego un activo a una bodega'
+        elif m.tipo_movimiento == 'ED_ab':
+            tipo_movimiento = 'Se movio un activo de una bodega a otra bodega'
+        elif m.tipo_movimiento == 'DE_ab':
+            tipo_movimiento = 'Se quito un activo de una bodega'
+        else:
+            tipo_movimiento = 'Desconocido'
+
+        if m.nombre_activo == None:
+            nombre_activo = 'Ninguno'
+        else:
+            nombre_activo = m.nombre_activo
+
+        if m.nombre_bodega == None:
+            nombre_bodega = 'Ninguno'
+        else:
+            nombre_bodega = m.nombre_bodega
+
+        if m.cantidad == None:
+            cantidad = 'Ninguno'
+        else:
+            cantidad = m.cantidad
+
+        fecha = m.fecha.strftime("%d/%m/%Y %H:%M:%S")
+
+        # Añade un párrafo al PDF
+        texto = f'Fecha: {fecha} | Tipo de movimiento: {tipo_movimiento} | Cantidad: {cantidad} | Nombre del activo: {nombre_activo} | Nombre de la bodega: {nombre_bodega} | Usuario: {m.user.username}'
+        parrafo = Paragraph(texto, styles['Normal'])
+        elements.append(parrafo)
+        # Añade un espacio al PDF
+        elements.append(Spacer(1, 12))
 
     # Construye el PDF
     doc.build(elements)
