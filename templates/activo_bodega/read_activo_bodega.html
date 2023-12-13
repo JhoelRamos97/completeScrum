@@ -105,14 +105,13 @@
                             <td>{{ a.codigo_barra }}</td>
                             <td>{{ a.fecha_contable }}</td>
                             <td>{{ a.fecha_adquisicion }}</td>
-                            <td>{{ a.vida_util_total }}</td>
-                            <td>{{ a.vida_util_restante }}</td>
+                            <td>{{ a.fecha_descontinuacion }}</td>
                             <td>{{ a.costo_alta }}</td>
                             <td>{{ a.valor_neto }}</td>
-                            <td>{{ a.id_tipo_activo.nombre }}</td>
+                            <td>{{ a.tipo_activo.nombre }}</td>
                             <td>
-                                <a name="" id="" href="{% url 'edit_activo_bodega' a.id bodega.id %}" role="button" class="btn btn-primary">Mover activo a otra bodega</a>
-                                <a name="" id="" href="{% url 'del_activo_bodega' a.id bodega.id %}" role="button" class="btn btn-danger">Eliminar activo de esta bodega</a>
+                                <a name="" id="" href="{% url 'edit_activo_bodega' bodega.id a.id %}" role="button" class="btn btn-primary">Mover activo a otra bodega</a>
+                                <a name="" id="" href="{% url 'del_activo_bodega' bodega.id a.id %}" role="button" class="btn btn-danger">Eliminar activo de esta bodega</a>
                             </td>
                         </tr>
                         {% endfor %}

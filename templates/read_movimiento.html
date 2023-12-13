@@ -86,7 +86,36 @@
                     {% for m in movimientos %}
                     <tr class="">
                         <td scope="row">{{ m.fecha }}</td>
-                        <td>{{ m.get_tipo_movimiento_display }}</td>
+                        <!-- activo -->
+                        {% if m.tipo_movimiento == 'AD_ac' %}
+                        <td class="text-success">Se agrego un activo al inventario</td>
+                        {% elif m.tipo_movimiento == 'ED_ac' %}
+                        <td class="text-primary">Se actualizo un activo en inventario</td>
+                        {% elif m.tipo_movimiento == 'DE_ac' %}
+                        <td class="text-danger">Se elimino un activo del inventario</td>
+                        <!-- bodega -->
+                        {% elif m.tipo_movimiento == 'AD_bo' %}
+                        <td class="text-success">Se registro una nueva bodega</td>
+                        {% elif m.tipo_movimiento == 'ED_bo' %}
+                        <td class="text-primary">Se actualizaron datos de una bodega</td>
+                        {% elif m.tipo_movimiento == 'DE_bo' %}
+                        <td class="text-danger">Se elimino una bodega del registro</td>
+                        <!-- tipo activo -->
+                        {% elif m.tipo_movimiento == 'AD_ta' %}
+                        <td class="text-success">Se agrego un nuevo tipo de activo</td>
+                        {% elif m.tipo_movimiento == 'ED_ta' %}
+                        <td class="text-primary">Se actualizaron datos de un tipo de activo</td>
+                        {% elif m.tipo_movimiento == 'DE_ta' %}
+                        <td class="text-danger">Se elimino un tipo de activo del registro</td>
+                        <!-- activo bodega -->
+                        {% elif m.tipo_movimiento == 'AD_ab' %}
+                        <td class="text-success">Se agrego un activo a una bodega</td>
+                        {% elif m.tipo_movimiento == 'ED_ab' %}
+                        <td class="text-primary">Se movio un activo de una bodega a otra bodega</td>
+                        {% elif m.tipo_movimiento == 'DE_ab' %}
+                        <td class="text-danger">Se elimino un activo de una bodega</td>
+                        {% endif %}
+                        
                         {% if m.nombre_activo == None %}
                         <td>No aplica</td>
                         <td>No aplica</td>

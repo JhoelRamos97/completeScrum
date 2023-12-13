@@ -95,14 +95,13 @@
                                 <td>{{ a.codigo_barra }}</td>
                                 <td>{{ a.fecha_contable }}</td>
                                 <td>{{ a.fecha_adquisicion }}</td>
-                                <td>{{ a.vida_util_total }}</td>
-                                <td>{{ a.vida_util_restante }}</td>
+                                <td>{{ a.fecha_descontinuacion }}</td>
                                 <td>{{ a.costo_alta }}</td>
                                 <td>{{ a.valor_neto }}</td>
-                                <td>{{ a.id_tipo_activo.nombre }}</td>
-                                <td>{{ a.id_bodega.nombre }}</td>
+                                <td>{{ a.tipo_activo.nombre }}</td>
+                                <td>{{ a.bodega.nombre }}</td>
                                 <td>
-                                {% if a.id_bodega.id != bodega.id %}
+                                {% if a.bodega.id != bodega.id %}
                                     <div class="btn-group" role="group" data-bs-toggle="buttons">
                                         <label class="btn btn-primary active">
                                             <input

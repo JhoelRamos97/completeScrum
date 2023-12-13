@@ -69,7 +69,18 @@
         <div class="container">
             <form method="POST">
                 {% csrf_token %}
-                {{form.as_p}}
+                <p>Nombre del tipo del activo:</p>
+                {{ form.nombre }}
+                <br>
+                <br>
+                <p>Marca del tipo del activo:</p>
+                {{ form.marca }}
+                <br>
+                <br>
+                <p>Unidad inacap del activo:</p>
+                {{ form.unidad_inacap }}
+                <br>
+                <br>
                 <a href="{% url 'read_tipo_activo' %}" class="btn btn-dark">Cancelar</a>
                 <button type="submit" class="btn btn-success">{{ accion }} tipo de activo</button>
             </form>

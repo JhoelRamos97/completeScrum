@@ -14,6 +14,9 @@ from reportlab.lib.styles import getSampleStyleSheet
 
 # Create your views here.
 def signin(req):
+    #si ya se inicio secion, redirige a la pagina de inicio
+    if req.user.is_authenticated:
+        return redirect('/inicio')
     if req.method == 'POST':
         form = AuthenticationForm(req, req.POST)
         if form.is_valid():
@@ -54,9 +57,8 @@ def add_activo(req):
     if req.method == "POST":
         form = FormActivo(req.POST)
         if form.is_valid():
-            print(form.bodega)
             form.save()
-            activo = Activo.objects.last().id
+            activo = Activo.objects.last()
             if activo.bodega == None:
                 movimiento = Movimiento(
                     fecha=datetime.now(),
@@ -157,7 +159,7 @@ def add_bodega(req):
         form = FormBodega(req.POST)
         if form.is_valid():
             form.save()
-            bodega = Bodega.objects.last().id
+            bodega = Bodega.objects.last()
             movimiento = Movimiento(
                 fecha=datetime.now(),
                 cantidad=None,
@@ -190,7 +192,7 @@ def edit_bodega(req, id):
                 user=req.user
                 )
             movimiento.save()
-            return redirect('/bodegas/')
+            return redirect(f'/bodega/{id}/')
 
     data = {'form': form, 'accion': 'Actualizar', 'descripcion': 'Cambie los atribulos de la bodega que desea actualizar.'}
     return render(req, 'bodega/add_bodega.html', data)
@@ -260,7 +262,7 @@ def edit_tipo_activo(req, id):
                 user=req.user
                 )
             movimiento.save()
-            return redirect('/tipos_de_activos/')
+            return redirect('/tipos-de-activos/')
 
     data = {'form': form, 'accion': 'Actualizar', 'descripcion': 'Cambie los atribulos del tipo de activo que desea actualizar.'}
     return render(req, 'tipo_activo/add_tipo_activo.html', data)
@@ -324,8 +326,9 @@ def edit_activo_bodega(req, id_bodega, id_activo):
     activo = Activo.objects.get(id=id_activo)
 
     if req.method == 'POST':
-        bodega_selecionada = req.POST.get('bodega_seleccionada')
-        activo.id_bodega = bodega_selecionada
+        id_bodega_selecionada = req.POST.get('bodega_seleccionada')
+        bodega_selecionada = Bodega.objects.get(id=id_bodega_selecionada)
+        activo.bodega = bodega_selecionada
         activo.save()
         movimiento = Movimiento(
             fecha=datetime.now(),
@@ -336,7 +339,7 @@ def edit_activo_bodega(req, id_bodega, id_activo):
             user=req.user
             )
         movimiento.save()
-        return redirect(f'/bodega/{bodega_selecionada.id}/')
+        return redirect(f'/bodega/{id_bodega_selecionada}/')
     
     data = {'bodegas': bodegas, 'activo': activo, 'bodega': bodega}
     return render(req, 'activo_bodega/edit_activo_bodega.html', data)
@@ -344,7 +347,7 @@ def edit_activo_bodega(req, id_bodega, id_activo):
 @login_required
 def del_activo_bodega(req, id_bodega, id_activo):
     activo = Activo.objects.get(id=id_activo)
-    activo.id_bodega = None
+    activo.bodega = None
     movimiento = Movimiento(
         fecha=datetime.now(),
         cantidad=activo.cantidad,
@@ -358,13 +361,15 @@ def del_activo_bodega(req, id_bodega, id_activo):
 #                                                     #
 #######################################################
 
+@login_required
 def read_movimiento(req):
     movimientos = Movimiento.objects.all()
     data = {'movimientos': movimientos}
     return render(req, 'read_movimiento.html', data)
 
+@login_required
 def generar_pdf(req, fecha_inicio, fecha_final):
-    movimientos = Movimiento.objects.all()
+    movimientos = Movimiento.objects.all().order_by('-fecha')
     print(movimientos)
     
     buffer = io.BytesIO()

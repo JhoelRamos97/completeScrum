@@ -15,3 +15,8 @@ class FormActivo(forms.ModelForm):
     class Meta:
         model = Activo
         fields = '__all__'
+        widgets = {
+            'fecha_contable': forms.DateInput(attrs={'type': 'date'}),
+            'fecha_adquisicion': forms.DateInput(attrs={'type': 'date'}),
+            'fecha_descontinuacion': forms.DateInput(attrs={'type': 'date'}),
+        }

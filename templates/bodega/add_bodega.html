@@ -69,7 +69,26 @@
         <div class="container">
             <form method="POST">
                 {% csrf_token %}
-                {{form.as_p}}
+                <p>Nombre de la bodega:</p>
+                {{ form.nombre }}
+                <br>
+                <br>
+                <p>Ubicacion de la bodega:</p>
+                {{ form.ubicacion }}
+                <br>
+                <br>
+                <p>Piso en que esta la bodega:</p>
+                {{ form.piso }}
+                <br>
+                <br>
+                <p>Edificion en que esta la bodega:</p>
+                {{ form.edificio }}
+                <br>
+                <br>
+                <p>Capacidad de la bodega:</p>
+                {{ form.capacidad }}
+                <br>
+                <br>
                 <a href="{% url 'read_bodega' %}" class="btn btn-dark">Cancelar</a>
                 <button type="submit" class="btn btn-success">{{accion}} bodega</button>
             </form>
