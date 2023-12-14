@@ -56,7 +56,7 @@
                 <a class="nav-link" href="{% url 'read_tipo_activo' %}">Tipos de activos</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'singout' %}">Cerrar secion</i></a>
+                <a class="nav-link" href="{% url 'singout' %}">Cerrar sesión</i></a>
               </li>
             </ul>
           </div>
@@ -73,11 +73,11 @@
             <div class="card bg-dark mx-auto" style="width: 16rem">
               <img src="{% static 'informe.jpg' %}" class="card-img-top" alt="Informe de Ventas"/>
               <div class="card-header bg-primary text-white text-center">
-                <h2 class="mb-0">Generar informe</h2>
+                <h2 class="mb-0">Movimientos del sistema</h2>
               </div>
               <div class="card-body text-white text-center">
-                <p>Ve todos los movimiento que se hacen hecho con el sistema y descarga un informe con dicha informacion.</p>
-                <a href="{% url 'read_movimiento' %}" class="btn btn-warning btn-block">Generar informe</a>
+                <p>Ve todos los movimientos que se han hecho con el sistema y descarga un informe .pdf con dicha informacion.</p>
+                <a href="{% url 'read_movimiento' %}" class="btn btn-warning btn-block">Ver movimientos</a>
               </div>
             </div>
           </div>
