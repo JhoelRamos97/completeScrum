@@ -20,3 +20,8 @@ class FormActivo(forms.ModelForm):
             'fecha_adquisicion': forms.DateInput(attrs={'type': 'date'}),
             'fecha_descontinuacion': forms.DateInput(attrs={'type': 'date'}),
         }
+        
+    descripcion = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3}),
+        label='Descripción del activo'
+    )

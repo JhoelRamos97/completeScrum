@@ -57,6 +57,9 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'singout' %}">Cerrar sesión</i></a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'edit_password' %}">Cambiar contraseña</i></a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -77,7 +80,7 @@
             </div>
             <div class="text-center">
                 <a href="{% url 'edit_bodega' bodega.id %}" class="btn btn-primary btn-lg text-white">Actualizar datos</a>
-                <a href="{% url 'del_bodega' bodega.id %}" class="btn btn-danger btn-lg text-white">Eliminar bodega</a>
+                <a href="{% url 'del_bodega' bodega.id %}" class="btn btn-danger btn-lg text-white" onclick="return confirm('¿Está seguro de eliminar la bodega {{ bodega.nombre }}?');">Eliminar bodega</a>
             </div>
             <h2>Activos en la bodega:</h2>
             <div class="table-responsive">
@@ -89,8 +92,7 @@
                             <th scope="col">Codigo de barras</th>
                             <th scope="col">Fecha de contable</th>
                             <th scope="col">Fecha de adquisición</th>
-                            <th scope="col">Vida util total</th>
-                            <th scope="col">Vida util restante</th>
+                            <th scope="col">Fecha de descontinuacion</th>
                             <th scope="col">Costo de alta</th>
                             <th scope="col">Valor neto</th>
                             <th scope="col">Tipo de activo</th>
@@ -111,7 +113,7 @@
                             <td>{{ a.tipo_activo.nombre }}</td>
                             <td>
                                 <a name="" id="" href="{% url 'edit_activo_bodega' bodega.id a.id %}" role="button" class="btn btn-primary">Mover activo a otra bodega</a>
-                                <a name="" id="" href="{% url 'del_activo_bodega' bodega.id a.id %}" role="button" class="btn btn-danger">Eliminar activo de esta bodega</a>
+                                <a name="" id="" href="{% url 'del_activo_bodega' bodega.id a.id %}" role="button" class="btn btn-danger" onclick="return confirm('¿Está seguro de quitar el activo de la bodega? Dejara al activo sin bodega');">Eliminar activo de esta bodega</a>
                             </td>
                         </tr>
                         {% endfor %}

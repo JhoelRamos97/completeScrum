@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.http import FileResponse
-from django.utils import timezone
+from datetime import date, timedelta
 from .forms import FormBodega, FormTipoActivo, FormActivo
 from .models import Bodega, Tipo_activo, Activo, Movimiento
 from datetime import datetime, timedelta
@@ -72,8 +72,8 @@ def add_activo(req):
             else:
                 movimiento = Movimiento(
                     fecha=datetime.now(),
-                    cantidad=activo.cantidad,
                     nombre_activo=activo.nombre,
+                    cantidad=activo.cantidad,
                     nombre_bodega=activo.bodega.nombre,
                     tipo_movimiento='AD_ac',
                     user=req.user
@@ -105,8 +105,8 @@ def edit_activo(req, id):
             else:
                 movimiento = Movimiento(
                     fecha=datetime.now(),
-                    cantidad=activo.cantidad,
                     nombre_activo=activo.nombre,
+                    cantidad=activo.cantidad,
                     nombre_bodega=activo.bodega.nombre,
                     tipo_movimiento='ED_ac',
                     user=req.user
@@ -132,8 +132,8 @@ def del_activo(req, id):
     else:
         movimiento = Movimiento(
             fecha=datetime.now(),
-            cantidad=activo.cantidad,
             nombre_activo=activo.nombre,
+            cantidad=activo.cantidad,
             nombre_bodega=activo.bodega.nombre,
             tipo_movimiento='DE_ac',
             user=req.user
@@ -163,8 +163,8 @@ def add_bodega(req):
             bodega = Bodega.objects.last()
             movimiento = Movimiento(
                 fecha=datetime.now(),
-                cantidad=None,
                 nombre_activo=None,
+                cantidad=None,
                 nombre_bodega=bodega.nombre,
                 tipo_movimiento='AD_bo',
                 user=req.user
@@ -186,8 +186,8 @@ def edit_bodega(req, id):
             form.save()
             movimiento = Movimiento(
                 fecha=datetime.now(),
-                cantidad=None,
                 nombre_activo=None,
+                cantidad=None,
                 nombre_bodega=bodega.nombre,
                 tipo_movimiento='ED_bo',
                 user=req.user
@@ -203,8 +203,8 @@ def del_bodega(req, id):
     bodega = Bodega.objects.get(id=id)
     movimiento = Movimiento(
         fecha=datetime.now(),
-        cantidad=None,
         nombre_activo=None,
+        cantidad=None,
         nombre_bodega=bodega.nombre,
         tipo_movimiento='DE_bo',
         user=req.user
@@ -270,17 +270,20 @@ def edit_tipo_activo(req, id):
 
 @login_required
 def del_tipo_activo(req, id):
-    tipo_activo = Tipo_activo.objects.get(id=id)
-    tipo_activo.delete()
-    movimiento = Movimiento(
-        fecha=datetime.now(),
-        cantidad=None,
-        nombre_activo=None,
-        nombre_bodega=None,
-        tipo_movimiento='DE_ta',
-        user=req.user
-        )
-    movimiento.save()
+    try:
+        tipo_activo = Tipo_activo.objects.get(id=id)
+        tipo_activo.delete()
+        movimiento = Movimiento(
+            fecha=datetime.now(),
+            cantidad=None,
+            nombre_activo=None,
+            nombre_bodega=None,
+            tipo_movimiento='DE_ta',
+            user=req.user
+            )
+        movimiento.save()
+    except:
+        raise ValueError(f"No se puede eliminar el tipo de activo, hay un o varios activos asociados.")
     return read_tipo_activo(req)
 #                                                     #
 #######################################################
@@ -358,30 +361,58 @@ def del_activo_bodega(req, id_bodega, id_activo):
         )
     movimiento.save()
     activo.save()
+        
     return redirect(f'/bodega/{id_bodega}/')
 #                                                     #
 #######################################################
 
 @login_required
 def read_movimiento(req):
-    movimientos = Movimiento.objects.all().order_by('-fecha')
+    return render(req, 'read_movimiento.html')
+
+@login_required
+def read_movimiento_dia(req):
+    fecha_actual = date.today()
+    movimientos = Movimiento.objects.filter(fecha__date=fecha_actual).order_by('-fecha')
     data = {'movimientos': movimientos}
     return render(req, 'read_movimiento.html', data)
 
 @login_required
+def read_movimiento_semana(req):
+    fecha_actual = date.today()
+    inicio_semana = fecha_actual - timedelta(days=fecha_actual.weekday())
+    fin_semana = inicio_semana + timedelta(days=6)
+    movimientos = Movimiento.objects.filter(fecha__date__range=[inicio_semana, fin_semana]).order_by('-fecha')
+    data = {'movimientos': movimientos}
+    return render(req, 'read_movimiento.html', data)
+
+@login_required
+def read_movimiento_mes(req):
+    fecha_actual = date.today()
+    primer_dia_mes = fecha_actual.replace(day=1)
+    ultimo_dia_mes = (primer_dia_mes + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+    movimientos = Movimiento.objects.filter(fecha__date__range=[primer_dia_mes, ultimo_dia_mes]).order_by('-fecha')
+    data = {'movimientos': movimientos}
+    return render(req, 'read_movimiento.html', data)
+
+@login_required
+def read_movimiento_all(req):
+    movimientos = Movimiento.objects.all().order_by('-fecha')
+    data = {'movimientos': movimientos}
+    return render(req, 'read_movimiento.html', data)
+
+
+@login_required
 def generar_pdf(req):
-    fecha_hace_un_mes = timezone.now() - timedelta(days=30)
-    movimientos = Movimiento.objects.filter(fecha__gte=fecha_hace_un_mes).order_by('-fecha')
+    movimientos = Movimiento.objects.all().order_by('-fecha')
     
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter)
     elements = []
     styles = getSampleStyleSheet()
-
     # Añade un título al PDF
     titulo = Paragraph(f'Informe de todos los movimientos del sistema de inventario durante el ultimo mes', styles['Title'])
     elements.append(titulo)
-
     for m in movimientos:
         if m.tipo_movimiento == 'AD_ac':
             tipo_movimiento = 'Se agrego un activo al inventario'
@@ -409,34 +440,43 @@ def generar_pdf(req):
             tipo_movimiento = 'Se quito un activo de una bodega'
         else:
             tipo_movimiento = 'Desconocido'
-
         if m.nombre_activo == None:
             nombre_activo = 'Ninguno'
         else:
             nombre_activo = m.nombre_activo
-
         if m.nombre_bodega == None:
             nombre_bodega = 'Ninguno'
         else:
             nombre_bodega = m.nombre_bodega
-
         if m.cantidad == None:
             cantidad = 'Ninguno'
         else:
             cantidad = m.cantidad
-
         fecha = m.fecha.strftime("%d/%m/%Y %H:%M:%S")
-
         # Añade un párrafo al PDF
         texto = f'Fecha: {fecha} | Tipo de movimiento: {tipo_movimiento} | Cantidad: {cantidad} | Nombre del activo: {nombre_activo} | Nombre de la bodega: {nombre_bodega} | Usuario: {m.user.username}'
         parrafo = Paragraph(texto, styles['Normal'])
         elements.append(parrafo)
         # Añade un espacio al PDF
         elements.append(Spacer(1, 12))
-
     # Construye el PDF
     doc.build(elements)
-
     # Configura la respuesta con el PDF
     buffer.seek(0)
-    return FileResponse(buffer, as_attachment=True, filename=f"Informe de sistema de ventas.pdf")
+    return FileResponse(buffer, as_attachment=True, filename=f"Informe de sistema de movimientos.pdf")
+
+@login_required
+def edit_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Actualiza la sesión del usuario para evitar cerrar sesión
+            messages.success(request, 'Tu contraseña ha sido cambiada exitosamente.')
+            return redirect('/inicio/')
+        else:
+            messages.error(request, 'Por favor, corrija los errores.')
+    else:
+        form = PasswordChangeForm(request.user)
+
+    return render(request, 'edit_password.html', {'form': form})

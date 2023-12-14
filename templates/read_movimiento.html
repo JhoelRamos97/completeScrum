@@ -57,6 +57,9 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'singout' %}">Cerrar sesión</i></a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'edit_password' %}">Cambiar contraseña</i></a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -69,6 +72,20 @@
         <div
             class="table-responsive container"
         >
+            <div class="text-center">
+                <h3>Mostrar los movimientos que hicieron:</h3>
+                <a href="{% url 'read_movimiento_dia' %}" class="btn btn-warning btn-lg text-dark">Hoy</a>
+                <a href="{% url 'read_movimiento_semana' %}" class="btn btn-warning btn-lg text-dark">Esta semana</a>
+                <a href="{% url 'read_movimiento_mes' %}" class="btn btn-warning btn-lg text-dark">Este mes</a>
+                <a href="{% url 'read_movimiento_all' %}" class="btn btn-warning btn-lg text-dark">Todo el tiempo</a>
+            </div>
+            <br>
+            <br>
+            <div class="text-center">
+                <a href="{% url 'generar_pdf' %}" class="btn btn-success btn-lg text-white">Descargar informe pdf</a>
+                <a href="{% url 'inicio' %}" class="btn btn-dark btn-lg text-white">Volver al menu</a>
+            </div>
+            <br>
             <table
                 class="table table-primary"
             >
@@ -133,10 +150,6 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <div class="text-center">
-                <a href="{% url 'generar_pdf' %}" class="btn btn-success btn-lg text-white">Descargar informe pdf</a>
-                <a href="{% url 'inicio' %}" class="btn btn-dark btn-lg text-white">Volver al menu</a>
-            </div>
         </div>
     </main>
     <!-- MAIN -->
