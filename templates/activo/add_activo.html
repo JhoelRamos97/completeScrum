@@ -70,55 +70,135 @@
     <!-- MAIN -->
     <main>
         <div class="container">
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                {{ form.errors }}
+            </div>
+            {% endif %}
+            {% block content %}
             <form method="POST">
                 {% csrf_token %}
-                <p>Nombre del activo:</p>
-                {{ form.nombre }}
+                <label for="{{ form.nombre.id_for_label }}">
+                    Nombre del activo:
+                </label>
+                <div class="form-group">{{ form.nombre }}</div>
+
                 <br>
+
+                <label for="{{ form.cantidad.id_for_label }}">Cantidad de objetos que tiene el activo:</label>
+                <div class="form-group">
+                    {{ form.cantidad }}
+                    <script>
+                        document.getElementById("{{ form.cantidad.id_for_label }}").type = "number";
+                        document.getElementById("{{ form.cantidad.id_for_label }}").min = "0";
+                        document.getElementById("{{ form.cantidad.id_for_label }}").step = "1";
+                        document.getElementById("{{ form.cantidad.id_for_label }}").onkeypress = function(e) {
+                            if (e.key == "-") {
+                                return false;
+                            }
+                            if (e.key == "e") {
+                                return false;
+                            }
+                            if (e.target.value.length >= 4) {
+                                return false;
+                            }
+                        }
+                    </script>
+                </div>
+
                 <br>
-                <p>Cantidad de objetos que tiene el activo:</p>
-                {{ form.cantidad }}
+                
+                <label for="{{ form.descripcion.id_for_label }}">Descripcion del activo:</label>
+                <div class="form-group">
+                    {{ form.descripcion }}
+                </div>
+                
                 <br>
+
+                <label for="{{ form.codigo_barra.id_for_label }}">Codigo de barras del activo:</label>
+                <div class="form-group">
+                    {{ form.codigo_barra }}
+                </div>
                 <br>
-                <p>Descripcion del activo:</p>
-                {{ form.descripcion }}
+
+                <label for="{{ form.fecha_contable.id_for_label }}">Fecha contable del activo:</label>
+                <div class="form-group">
+                    {{ form.fecha_contable }}
+                </div>
+
                 <br>
+
+                <label for="{{ form.fecha_adquisicion.id_for_label }}">Fecha de adquisicion del activo:</label>
+                <div class="form-group">
+                    {{ form.fecha_adquisicion }}
+                </div>
+
                 <br>
-                <p>Codigo de barras del activo:</p>
-                {{ form.codigo_barra }}
+
+                <label for="{{ form.fecha_descontinuacion.id_for_label }}">Fecha de descontinuacion del activo:</label>
+                <div class="form-group">
+                    {{ form.fecha_descontinuacion }}
+                </div>
+
                 <br>
+
+                <label for="{{ form.costo_alta.id_for_label }}">Costo de alta del activo:</label>
+                <div class="form-group">
+                    {{ form.costo_alta }}
+                    <script>
+                        document.getElementById("{{ form.costo_alta.id_for_label }}").type = "number";
+                        document.getElementById("{{ form.costo_alta.id_for_label }}").min = "0";
+                        document.getElementById("{{ form.costo_alta.id_for_label }}").step = "0.01";
+                        document.getElementById("{{ form.costo_alta.id_for_label }}").onkeypress = function(e) {
+                            if (e.key == "-") {
+                                return false;
+                            }
+                            if (e.key == "e") {
+                                return false;
+                            }
+                            if (e.target.value.length >= 10) {
+                                return false;
+                            }
+                        }
+                    </script>
+                </div>
+
                 <br>
-                <p>Fecha contable del activo:</p>
-                {{ form.fecha_contable }}
+
+                <label for="{{ form.valor_neto.id_for_label }}">Valor neto del activo:</label>
+                <div class="form-group">
+                    {{ form.valor_neto }}
+                    <script>
+                        //no se puede escribir la letra e
+                        document.getElementById("{{ form.valor_neto.id_for_label }}").onkeypress = function(e) {
+                            if (e.key == "e") {
+                                return false;
+                            }
+                            if (e.target.value.length >= 10) {
+                                return false;
+                            }
+                        }
+                    </script>
+                </div>
+
                 <br>
+
+                <label for="{{ form.valor_residual.id_for_label }}">Tipo de activo que es:</label>
+                <div class="form-group">
+                    {{ form.tipo_activo }}
+                </div>
+
                 <br>
-                <p>Fecha de adquisicion del activo:</p>
-                {{ form.fecha_adquisicion }}
-                <br>
-                <br>
-                <p>Fecha de descontinuacion del activo:</p>
-                {{ form.fecha_descontinuacion }}
-                <br>
-                <br>
-                <p>Costo de alta del activo:</p>
-                {{ form.costo_alta }}
-                <br>
-                <br>
-                <p>Valor neto del activo:</p>
-                {{ form.valor_neto }}
-                <br>
-                <br>
-                <p>Seleccione el tipo de activo:</p>
-                {{ form.tipo_activo }}
-                <br>
-                <br>
-                <p>Seleccione la bodega (opcional):</p>
-                {{ form.bodega }}
-                <br>
+
+                <label for="{{ form.tipo_activo.id_for_label }}">Bodega en donde se va a almacenar:</label>
+                <div class="form-group">
+                    {{ form.bodega }}
+                </div>
                 <br>
                 <a href="{% url 'read_activo' %}" class="btn btn-dark">Cancelar</a>
                 <button type="submit" class="btn btn-success">{{ accion }} activo</button>
             </form>
+            {% endblock %}
         </div>
     </main>
     <!-- MAIN -->

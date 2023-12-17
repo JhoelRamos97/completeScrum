@@ -70,31 +70,96 @@
     <!-- MAIN -->
     <main>
         <div class="container">
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% block content %}
             <form method="POST">
                 {% csrf_token %}
-                <p>Nombre de la bodega:</p>
-                {{ form.nombre }}
+                <label for="{{ form.nombre.id_for_label }}">Nombre de la bodega:</label>
+                <div class="form-group">
+                    {{ form.nombre }}
+                </div>
+
                 <br>
+
+                <label for="{{ form.ubicacion.id_for_label }}">Ubicacion de la bodega:</label>
+                <div class="form-group">
+                    {{ form.ubicacion }}
+                </div>
+
                 <br>
-                <p>Ubicación de la bodega:</p>
-                {{ form.ubicacion }}
+
+                <label for="{{ form.piso.id_for_label }}">Piso en que esta la bodega:</label>
+                <div class="form-group">
+                    {{ form.piso }}
+                    <script>
+                        document.getElementById("{{ form.piso.id_for_label }}").type = "number";
+                        document.getElementById("{{ form.piso.id_for_label }}").min = "0";
+                        document.getElementById("{{ form.piso.id_for_label }}").step = "1";
+                        document.getElementById("{{ form.piso.id_for_label }}").onkeypress = function(e) {
+                            if (e.key == "e") {
+                                return false;
+                            }
+                            if (e.key == "6") {
+                                return false;
+                            }
+                            if (e.key == "7") {
+                                return false;
+                            }
+                            if (e.key == "8") {
+                                return false;
+                            }
+                            if (e.key == "9") {
+                                return false;
+                            }
+                            if (e.target.value.length >= 2) {
+                                return false;
+                            }
+                        }
+                    </script>
+                </div>
+
                 <br>
+
+                <label for="{{ form.edificio.id_for_label }}">Edificio en que esta la bodega:</label>
+                <div class="form-group">
+                    {{ form.edificio }}
+                </div>
+
                 <br>
-                <p>Piso en que esta la bodega:</p>
-                {{ form.piso }}
+
+                <label for="{{ form.capacidad.id_for_label }}">Capacidad de la bodega:</label>
+                <div class="form-group">
+                    {{ form.capacidad }}
+                    <script>
+                        document.getElementById("{{ form.capacidad.id_for_label }}").type = "number";
+                        document.getElementById("{{ form.capacidad.id_for_label }}").min = "0";
+                        document.getElementById("{{ form.capacidad.id_for_label }}").step = "1";
+                        document.getElementById("{{ form.capacidad.id_for_label }}").onkeypress = function(e) {
+                            if (e.key == "-") {
+                                return false;
+                            }
+                            if (e.key == "e") {
+                                return false;
+                            }
+                            if (e.target.value.length >= 10) {
+                                return false;
+                            }
+                        }
+                    </script>
+                </div>
+
                 <br>
-                <br>
-                <p>Edificio en que esta la bodega:</p>
-                {{ form.edificio }}
-                <br>
-                <br>
-                <p>Capacidad de la bodega:</p>
-                {{ form.capacidad }}
-                <br>
-                <br>
+
                 <a href="{% url 'read_bodega' %}" class="btn btn-dark">Cancelar</a>
                 <button type="submit" class="btn btn-success">{{accion}} bodega</button>
             </form>
+            {% endblock %}
         </div>
     </main>
     <!-- MAIN -->

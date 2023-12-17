@@ -70,6 +70,13 @@
     <!-- MAIN -->
     <main>
         <div class="container">
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
             <form method="POST">
                 {% csrf_token %}
                 <div class="table-responsive">
@@ -125,7 +132,7 @@
                     </table>
                     <div class="text-center">
                         <button type="submit" class="btn btn-success">Agregar activos a la bodega</button>
-                        <a href="{% url 'inicio' %}" class="btn btn-dark btn-lg text-white">Volver al menu</a>
+                        <a href="{% url 'read_activo_bodega' bodega.id %}" class="btn btn-dark btn-lg text-white">Volver al menu</a>
                     </div>
                 </div>
             </form>

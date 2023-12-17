@@ -56,20 +56,11 @@ def add_activo(req):
     form = FormActivo()
 
     if req.method == "POST":
-        form = FormActivo(req.POST)
-        if form.is_valid():
-            form.save()
-            activo = Activo.objects.last()
-            if activo.bodega == None:
-                movimiento = Movimiento(
-                    fecha=datetime.now(),
-                    cantidad=activo.cantidad,
-                    nombre_activo=activo.nombre,
-                    nombre_bodega=None,
-                    tipo_movimiento='AD_ac',
-                    user=req.user
-                )
-            else:
+        try:
+            form = FormActivo(req.POST)
+            if form.is_valid():
+                form.save()
+                activo = Activo.objects.last()
                 movimiento = Movimiento(
                     fecha=datetime.now(),
                     nombre_activo=activo.nombre,
@@ -78,31 +69,36 @@ def add_activo(req):
                     tipo_movimiento='AD_ac',
                     user=req.user
                 )
-            movimiento.save()
-            return redirect('/activos/')
+                movimiento.save()
+                messages.success(req, f'Se agrego el activo "{activo.nombre}" correctamente.')
+                return redirect('/activos/')
+        except Exception as e:
+            messages.error(req, f'No se pudo agregar el activo. Error: {str(e)}')
 
     data = {'form': form, 'accion': 'Agregar', 'descripcion': 'Agregue los atribulos del activos que desea añadir al inventario.'}
     return render(req, 'activo/add_activo.html', data)
 
-@login_required
 def edit_activo(req, id):
     activo = Activo.objects.get(id=id)
     form = FormActivo(instance=activo)
 
+    # Formatear las fechas en el formato 'YYYY-MM-DD'
+    formatted_fecha_contable = activo.fecha_contable.strftime('%Y-%m-%d')
+    formatted_fecha_adquisicion = activo.fecha_adquisicion.strftime('%Y-%m-%d')
+    formatted_fecha_descontinuacion = activo.fecha_descontinuacion.strftime('%Y-%m-%d')
+
+    # Actualizar el diccionario initial del formulario
+    form.initial.update({
+        'fecha_contable': formatted_fecha_contable,
+        'fecha_adquisicion': formatted_fecha_adquisicion,
+        'fecha_descontinuacion': formatted_fecha_descontinuacion,
+    })
+
     if req.method == "POST":
-        form = FormActivo(req.POST, instance=activo)
-        if form.is_valid():
-            form.save()
-            if activo.bodega == None:
-                movimiento = Movimiento(
-                    fecha=datetime.now(),
-                    cantidad=activo.cantidad,
-                    nombre_activo=activo.nombre,
-                    nombre_bodega=None,
-                    tipo_movimiento='ED_ac',
-                    user=req.user
-                )
-            else:
+        try:
+            form = FormActivo(req.POST, instance=activo)
+            if form.is_valid():
+                form.save()
                 movimiento = Movimiento(
                     fecha=datetime.now(),
                     nombre_activo=activo.nombre,
@@ -111,25 +107,19 @@ def edit_activo(req, id):
                     tipo_movimiento='ED_ac',
                     user=req.user
                     )
-            movimiento.save()
-            return redirect('/activos/')
+                movimiento.save()
+                messages.success(req, f'Se actualizó el activo "{activo.nombre}" correctamente.')
+                return redirect('/activos/')
+        except Exception as e:
+            messages.error(req, f'No se pudo actualizar el activo. Error: {str(e)}')
 
-    data = {'form': form, 'accion': 'Actualizar', 'descripcion': 'Cambie los atribulos del activo que desea actualizar.'}
+    data = {'form': form, 'accion': 'Actualizar', 'descripcion': 'Cambie los atributos del activo que desea actualizar.'}
     return render(req, 'activo/add_activo.html', data)
 
 @login_required
 def del_activo(req, id):
     activo = Activo.objects.get(id=id)
-    if activo.bodega == None:
-        movimiento = Movimiento(
-            fecha=datetime.now(),
-            cantidad=activo.cantidad,
-            nombre_activo=activo.nombre,
-            nombre_bodega=None,
-            tipo_movimiento='DE_ac',
-            user=req.user
-            )
-    else:
+    try:
         movimiento = Movimiento(
             fecha=datetime.now(),
             nombre_activo=activo.nombre,
@@ -138,8 +128,12 @@ def del_activo(req, id):
             tipo_movimiento='DE_ac',
             user=req.user
             )
-    movimiento.save()
-    activo.delete()
+        movimiento.save()
+        activo.delete()
+        messages.success(req, f'Se eliminó el activo "{activo.nombre}" correctamente.')
+    except Exception as e:
+        messages.error(req, f'No se pudo eliminar el activo. Error: {str(e)}')
+
     return redirect('/activos/')
 #                                                     #
 #######################################################
@@ -157,20 +151,24 @@ def add_bodega(req):
     form = FormBodega()
 
     if req.method == "POST":
-        form = FormBodega(req.POST)
-        if form.is_valid():
-            form.save()
-            bodega = Bodega.objects.last()
-            movimiento = Movimiento(
-                fecha=datetime.now(),
-                nombre_activo=None,
-                cantidad=None,
-                nombre_bodega=bodega.nombre,
-                tipo_movimiento='AD_bo',
-                user=req.user
-                )
-            movimiento.save()
-            return redirect('/bodegas/')
+        try:
+            form = FormBodega(req.POST)
+            if form.is_valid():
+                form.save()
+                bodega = Bodega.objects.last()
+                movimiento = Movimiento(
+                    fecha=datetime.now(),
+                    nombre_activo=None,
+                    cantidad=None,
+                    nombre_bodega=bodega.nombre,
+                    tipo_movimiento='AD_bo',
+                    user=req.user
+                    )
+                movimiento.save()
+                messages.success(req, f'Se agrego la bodega "{bodega.nombre}" correctamente.')
+                return redirect('/bodegas/')
+        except Exception as e:
+            messages.error(req, f'No se pudo agregar la bodega. Error: {str(e)}')
 
     data = {'form': form, 'accion': 'Agregar', 'descripcion': 'Agregue los atribulos de la bodega que desea añadir.'}
     return render(req, 'bodega/add_bodega.html', data)
@@ -181,36 +179,45 @@ def edit_bodega(req, id):
     form = FormBodega(instance=bodega)
 
     if req.method == "POST":
-        form = FormBodega(req.POST, instance=bodega)
-        if form.is_valid():
-            form.save()
-            movimiento = Movimiento(
-                fecha=datetime.now(),
-                nombre_activo=None,
-                cantidad=None,
-                nombre_bodega=bodega.nombre,
-                tipo_movimiento='ED_bo',
-                user=req.user
-                )
-            movimiento.save()
-            return redirect(f'/bodega/{id}/')
+        try:
+            form = FormBodega(req.POST, instance=bodega)
+            if form.is_valid():
+                form.save()
+                movimiento = Movimiento(
+                    fecha=datetime.now(),
+                    nombre_activo=None,
+                    cantidad=None,
+                    nombre_bodega=bodega.nombre,
+                    tipo_movimiento='ED_bo',
+                    user=req.user
+                    )
+                movimiento.save()
+                messages.success(req, f'Se actualizó la bodega "{bodega.nombre}" correctamente.')
+                return redirect(f'/bodega/{id}/')
+        except Exception as e:
+            messages.error(req, f'No se pudo actualizar la bodega. Error: {str(e)}')
 
     data = {'form': form, 'accion': 'Actualizar', 'descripcion': 'Cambie los atribulos de la bodega que desea actualizar.'}
     return render(req, 'bodega/add_bodega.html', data)
 
 @login_required
 def del_bodega(req, id):
-    bodega = Bodega.objects.get(id=id)
-    movimiento = Movimiento(
-        fecha=datetime.now(),
-        nombre_activo=None,
-        cantidad=None,
-        nombre_bodega=bodega.nombre,
-        tipo_movimiento='DE_bo',
-        user=req.user
-        )
-    movimiento.save()
-    bodega.delete()
+    try:
+        bodega = Bodega.objects.get(id=id)
+        movimiento = Movimiento(
+            fecha=datetime.now(),
+            nombre_activo=None,
+            cantidad=None,
+            nombre_bodega=bodega.nombre,
+            tipo_movimiento='DE_bo',
+            user=req.user
+            )
+        movimiento.save()
+        bodega.delete()
+        messages.success(req, f'Se eliminó la bodega "{bodega.nombre}" correctamente.')
+    except Exception as e:
+        messages.error(req, f'No se pudo eliminar la bodega. Error: {str(e)}')
+    
     return redirect('/bodegas/')
 #                                                     #
 #######################################################
@@ -228,19 +235,23 @@ def add_tipo_activo(req):
     form = FormTipoActivo()
 
     if req.method == "POST":
-        form = FormTipoActivo(req.POST)
-        if form.is_valid():
-            form.save()
-            movimiento = Movimiento(
-                fecha=datetime.now(),
-                cantidad=None,
-                nombre_activo=None,
-                nombre_bodega=None,
-                tipo_movimiento='AD_ta',
-                user=req.user
-                )
-            movimiento.save()
-            return redirect('/tipos-de-activos/')
+        try:
+            form = FormTipoActivo(req.POST)
+            if form.is_valid():
+                form.save()
+                movimiento = Movimiento(
+                    fecha=datetime.now(),
+                    cantidad=None,
+                    nombre_activo=None,
+                    nombre_bodega=None,
+                    tipo_movimiento='AD_ta',
+                    user=req.user
+                    )
+                movimiento.save()
+                messages.success(req, f'Se agrego el tipo de activo "{form.cleaned_data.get("nombre")}" correctamente.')
+                return redirect('/tipos-de-activos/')
+        except Exception as e:
+            messages.error(req, f'No se pudo agregar el tipo de activo. Error: {str(e)}')
 
     data = {'form': form, 'accion': 'Agregar', 'descripcion': 'Agregue los atribulos del tipo de activo que desea añadir.'}
     return render(req, 'tipo_activo/add_tipo_activo.html', data)
@@ -251,19 +262,23 @@ def edit_tipo_activo(req, id):
     form = FormTipoActivo(instance=tipo_activo)
 
     if req.method == "POST":
-        form = FormTipoActivo(req.POST, instance=tipo_activo)
-        if form.is_valid():
-            form.save()
-            movimiento = Movimiento(
-                fecha=datetime.now(),
-                cantidad=None,
-                nombre_activo=None,
-                nombre_bodega=None,
-                tipo_movimiento='ED_ta',
-                user=req.user
-                )
-            movimiento.save()
-            return redirect('/tipos-de-activos/')
+        try:
+            form = FormTipoActivo(req.POST, instance=tipo_activo)
+            if form.is_valid():
+                form.save()
+                movimiento = Movimiento(
+                    fecha=datetime.now(),
+                    cantidad=None,
+                    nombre_activo=None,
+                    nombre_bodega=None,
+                    tipo_movimiento='ED_ta',
+                    user=req.user
+                    )
+                movimiento.save()
+                return redirect('/tipos-de-activos/')
+            messages.success(req, f'Se actualizó el tipo de activo "{tipo_activo.nombre}" correctamente.')
+        except Exception as e:
+            messages.error(req, f'No se pudo actualizar el tipo de activo. Error: {str(e)}')
 
     data = {'form': form, 'accion': 'Actualizar', 'descripcion': 'Cambie los atribulos del tipo de activo que desea actualizar.'}
     return render(req, 'tipo_activo/add_tipo_activo.html', data)
@@ -282,9 +297,11 @@ def del_tipo_activo(req, id):
             user=req.user
             )
         movimiento.save()
-    except:
-        raise ValueError(f"No se puede eliminar el tipo de activo, hay un o varios activos asociados.")
-    return read_tipo_activo(req)
+        messages.success(req, f'Se eliminó el tipo de activo "{tipo_activo.nombre}" correctamente.')
+    except Exception as e:
+        messages.error(req, f'No se pudo eliminar el tipo de activo. Error: {str(e)}')
+
+    return redirect('read_tipo_activo')
 #                                                     #
 #######################################################
 
@@ -303,22 +320,24 @@ def add_activo_bodega(req, id):
     activos = Activo.objects.all()
 
     if req.method == 'POST':
-        activos_seleccionados = req.POST.getlist('activo_seleccionado')
-        Activo.objects.filter(id__in=activos_seleccionados).update(bodega=id)
-        
-        for activo_id in activos_seleccionados:
-            activo_actual = Activo.objects.get(id=activo_id)
-            movimiento = Movimiento(
-                fecha=datetime.now(),
-                cantidad=activo_actual.cantidad,
-                nombre_activo=activo_actual.nombre,
-                nombre_bodega=bodega.nombre,
-                tipo_movimiento='AD_ab',
-                user=req.user
-            )
-            movimiento.save()
-        
-        return redirect(f'/bodega/{id}/')
+        try:
+            activos_seleccionados = req.POST.getlist('activo_seleccionado')
+            Activo.objects.filter(id__in=activos_seleccionados).update(bodega=id)
+
+            for activo_id in activos_seleccionados:
+                activo_actual = Activo.objects.get(id=activo_id)
+                movimiento = Movimiento(
+                    fecha=datetime.now(),
+                    cantidad=activo_actual.cantidad,
+                    nombre_activo=activo_actual.nombre,
+                    nombre_bodega=bodega.nombre,
+                    tipo_movimiento='AD_ab',
+                    user=req.user
+                )
+                movimiento.save()
+            return redirect(f'/bodega/{id}/')
+        except Exception as e:
+            messages.error(req, f'No se pudo mover el activo. Error: {str(e)}')
     
     data = {'bodega': bodega, 'activos': activos}
     return render(req, 'activo_bodega/add_activo_bodega.html', data)
@@ -330,20 +349,23 @@ def edit_activo_bodega(req, id_bodega, id_activo):
     activo = Activo.objects.get(id=id_activo)
 
     if req.method == 'POST':
-        id_bodega_selecionada = req.POST.get('bodega_seleccionada')
-        bodega_selecionada = Bodega.objects.get(id=id_bodega_selecionada)
-        activo.bodega = bodega_selecionada
-        activo.save()
-        movimiento = Movimiento(
-            fecha=datetime.now(),
-            cantidad=activo.cantidad,
-            nombre_activo=activo.nombre,
-            nombre_bodega=bodega.nombre,
-            tipo_movimiento='ED_ab',
-            user=req.user
-            )
-        movimiento.save()
-        return redirect(f'/bodega/{id_bodega_selecionada}/')
+        try:
+            id_bodega_selecionada = req.POST.get('bodega_seleccionada')
+            bodega_selecionada = Bodega.objects.get(id=id_bodega_selecionada)
+            activo.bodega = bodega_selecionada
+            activo.save()
+            movimiento = Movimiento(
+                fecha=datetime.now(),
+                cantidad=activo.cantidad,
+                nombre_activo=activo.nombre,
+                nombre_bodega=bodega.nombre,
+                tipo_movimiento='ED_ab',
+                user=req.user
+                )
+            movimiento.save()
+            return redirect(f'/bodega/{id_bodega_selecionada}/')
+        except Exception as e:
+            messages.error(req, f'No se pudo mover el activo. Error: {str(e)}')
     
     data = {'bodegas': bodegas, 'activo': activo, 'bodega': bodega}
     return render(req, 'activo_bodega/edit_activo_bodega.html', data)

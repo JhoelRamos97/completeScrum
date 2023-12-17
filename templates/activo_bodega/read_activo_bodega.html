@@ -70,6 +70,13 @@
     <!-- MAIN -->
     <main>
         <div class="container">
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
             <div class="alert alert-dark py-4 mt-5">
                 <h2 class="text-center">Datos de la bodega actual:</h2>
                 <h4>Nombre:    {{ bodega.nombre }}</h4>
@@ -113,14 +120,13 @@
                             <td>{{ a.tipo_activo.nombre }}</td>
                             <td>
                                 <a name="" id="" href="{% url 'edit_activo_bodega' bodega.id a.id %}" role="button" class="btn btn-primary">Mover activo a otra bodega</a>
-                                <a name="" id="" href="{% url 'del_activo_bodega' bodega.id a.id %}" role="button" class="btn btn-danger" onclick="return confirm('¿Está seguro de quitar el activo de la bodega? Dejara al activo sin bodega');">Eliminar activo de esta bodega</a>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
                 <div class="text-center">
-                    <a href="{% url 'add_activo_bodega' bodega.id %}" class="btn btn-success btn-lg text-white">Agregar activo a bodega</a>
+                    <a href="{% url 'add_activo_bodega' bodega.id %}" class="btn btn-primary btn-lg text-white">Mover activos a esta bodega</a>
                     <a href="{% url 'read_bodega'%}" class="btn btn-dark btn-lg text-white">Volver al menu</a>
                 </div>
             </div>

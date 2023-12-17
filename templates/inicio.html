@@ -71,6 +71,13 @@
     <!-- MAIN -->
     <main>
       <div class="container mt-4">
+        {% if messages %}
+          <ul class="messages">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
         <div class="row justify-content-center">
           <div class="col-md-3 mb-4">
             <div class="card bg-dark mx-auto" style="width: 16rem">
