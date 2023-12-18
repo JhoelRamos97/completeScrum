@@ -62,12 +62,12 @@ class Movimiento(models.Model):
         ('ED_ab', 'Se movio un activo de una bodega a otra bodega'),
         ('DE_ab', 'Se quito un activo de una bodega')
     ]
-    fecha =           models.DateTimeField       (blank=False, null=False)
-    tipo_movimiento = models.CharField           (blank=False, null=False, max_length=5, choices=tipo_movimiento_CHOICES, default='Defau')
-    nombre_activo =   models.CharField           (blank=True,  null=True,   max_length=50)
-    cantidad =        models.PositiveIntegerField(blank=True,  null=True)
-    nombre_bodega =   models.CharField           (blank=True,  null=True,   max_length=50)
-    user =            models.ForeignKey          (User, on_delete=models.PROTECT, blank=False, null=False)
+    fecha =           models.DateTimeField(blank=False, null=False)
+    tipo_movimiento = models.CharField    (blank=False, null=False, max_length=5, choices=tipo_movimiento_CHOICES, default='Defau')
+    activo_id =       models.ForeignKey   (Activo,      on_delete=models.PROTECT, blank=True,  null=True)
+    bodega_id =       models.ForeignKey   (Bodega,      on_delete=models.PROTECT, blank=True,  null=True)
+    tipo_activo_id =  models.ForeignKey   (Tipo_activo, on_delete=models.PROTECT, blank=True,  null=True)
+    user =            models.ForeignKey   (User,        on_delete=models.PROTECT, blank=False, null=False)
 
     def __str__(self):
         tipo_movimiento = dict(self.tipo_movimiento_CHOICES).get(self.tipo_movimiento, 'Desconocido')

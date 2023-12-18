@@ -63,11 +63,11 @@ def add_activo(req):
                 activo = Activo.objects.last()
                 movimiento = Movimiento(
                     fecha=datetime.now(),
-                    nombre_activo=activo.nombre,
-                    cantidad=activo.cantidad,
-                    nombre_bodega=activo.bodega.nombre,
-                    tipo_movimiento='AD_ac',
-                    user=req.user
+                    activo_id       = activo,
+                    bodega_id       = activo.bodega,
+                    tipo_activo_id     = activo.tipo_activo,
+                    tipo_movimiento ='AD_ac',
+                    user            = req.user
                 )
                 movimiento.save()
                 messages.success(req, f'Se agrego el activo "{activo.nombre}" correctamente.')
@@ -101,9 +101,9 @@ def edit_activo(req, id):
                 form.save()
                 movimiento = Movimiento(
                     fecha=datetime.now(),
-                    nombre_activo=activo.nombre,
-                    cantidad=activo.cantidad,
-                    nombre_bodega=activo.bodega.nombre,
+                    activo_id       = activo,
+                    bodega_id       = activo.bodega,
+                    tipo_activo_id     = activo.tipo_activo,
                     tipo_movimiento='ED_ac',
                     user=req.user
                     )
@@ -120,15 +120,6 @@ def edit_activo(req, id):
 def del_activo(req, id):
     activo = Activo.objects.get(id=id)
     try:
-        movimiento = Movimiento(
-            fecha=datetime.now(),
-            nombre_activo=activo.nombre,
-            cantidad=activo.cantidad,
-            nombre_bodega=activo.bodega.nombre,
-            tipo_movimiento='DE_ac',
-            user=req.user
-            )
-        movimiento.save()
         activo.delete()
         messages.success(req, f'Se eliminó el activo "{activo.nombre}" correctamente.')
     except Exception as e:
@@ -158,9 +149,9 @@ def add_bodega(req):
                 bodega = Bodega.objects.last()
                 movimiento = Movimiento(
                     fecha=datetime.now(),
-                    nombre_activo=None,
-                    cantidad=None,
-                    nombre_bodega=bodega.nombre,
+                    activo_id       = None,
+                    bodega_id       = bodega,
+                    tipo_activo_id     = None,
                     tipo_movimiento='AD_bo',
                     user=req.user
                     )
@@ -185,9 +176,9 @@ def edit_bodega(req, id):
                 form.save()
                 movimiento = Movimiento(
                     fecha=datetime.now(),
-                    nombre_activo=None,
-                    cantidad=None,
-                    nombre_bodega=bodega.nombre,
+                    activo_id       = None,
+                    bodega_id       = bodega,
+                    tipo_activo_id     = None,
                     tipo_movimiento='ED_bo',
                     user=req.user
                     )
@@ -204,15 +195,6 @@ def edit_bodega(req, id):
 def del_bodega(req, id):
     try:
         bodega = Bodega.objects.get(id=id)
-        movimiento = Movimiento(
-            fecha=datetime.now(),
-            nombre_activo=None,
-            cantidad=None,
-            nombre_bodega=bodega.nombre,
-            tipo_movimiento='DE_bo',
-            user=req.user
-            )
-        movimiento.save()
         bodega.delete()
         messages.success(req, f'Se eliminó la bodega "{bodega.nombre}" correctamente.')
     except Exception as e:
@@ -235,23 +217,25 @@ def add_tipo_activo(req):
     form = FormTipoActivo()
 
     if req.method == "POST":
-        try:
+        #try:
             form = FormTipoActivo(req.POST)
             if form.is_valid():
                 form.save()
+                tipo_activo = Tipo_activo.objects.last()
+                print(tipo_activo)
                 movimiento = Movimiento(
                     fecha=datetime.now(),
-                    cantidad=None,
-                    nombre_activo=None,
-                    nombre_bodega=None,
-                    tipo_movimiento='AD_ta',
-                    user=req.user
+                    activo_id       = None,
+                    bodega_id       = None,
+                    tipo_activo_id  = tipo_activo,
+                    tipo_movimiento = 'AD_ta',
+                    user            = req.user
                     )
                 movimiento.save()
                 messages.success(req, f'Se agrego el tipo de activo "{form.cleaned_data.get("nombre")}" correctamente.')
                 return redirect('/tipos-de-activos/')
-        except Exception as e:
-            messages.error(req, f'No se pudo agregar el tipo de activo. Error: {str(e)}')
+        #except Exception as e:
+            #messages.error(req, f'No se pudo agregar el tipo de activo. Error: {str(e)}')
 
     data = {'form': form, 'accion': 'Agregar', 'descripcion': 'Agregue los atribulos del tipo de activo que desea añadir.'}
     return render(req, 'tipo_activo/add_tipo_activo.html', data)
@@ -268,10 +252,10 @@ def edit_tipo_activo(req, id):
                 form.save()
                 movimiento = Movimiento(
                     fecha=datetime.now(),
-                    cantidad=None,
-                    nombre_activo=None,
-                    nombre_bodega=None,
-                    tipo_movimiento='ED_ta',
+                    activo_id       = None,
+                    bodega_id       = None,
+                    tipo_activo_id  = tipo_activo,
+                    tipo_movimiento = 'ED_ta',
                     user=req.user
                     )
                 movimiento.save()
@@ -288,15 +272,6 @@ def del_tipo_activo(req, id):
     try:
         tipo_activo = Tipo_activo.objects.get(id=id)
         tipo_activo.delete()
-        movimiento = Movimiento(
-            fecha=datetime.now(),
-            cantidad=None,
-            nombre_activo=None,
-            nombre_bodega=None,
-            tipo_movimiento='DE_ta',
-            user=req.user
-            )
-        movimiento.save()
         messages.success(req, f'Se eliminó el tipo de activo "{tipo_activo.nombre}" correctamente.')
     except Exception as e:
         messages.error(req, f'No se pudo eliminar el tipo de activo. Error: {str(e)}')
@@ -328,9 +303,9 @@ def add_activo_bodega(req, id):
                 activo_actual = Activo.objects.get(id=activo_id)
                 movimiento = Movimiento(
                     fecha=datetime.now(),
-                    cantidad=activo_actual.cantidad,
-                    nombre_activo=activo_actual.nombre,
-                    nombre_bodega=bodega.nombre,
+                    activo_id       = activo_actual,
+                    bodega_id       = bodega,
+                    tipo_activo_id     = activo_actual.tipo_activo,
                     tipo_movimiento='AD_ab',
                     user=req.user
                 )
@@ -356,9 +331,9 @@ def edit_activo_bodega(req, id_bodega, id_activo):
             activo.save()
             movimiento = Movimiento(
                 fecha=datetime.now(),
-                cantidad=activo.cantidad,
-                nombre_activo=activo.nombre,
-                nombre_bodega=bodega.nombre,
+                activo_id       = activo,
+                bodega_id       = bodega_selecionada,
+                tipo_activo_id     = activo.tipo_activo,
                 tipo_movimiento='ED_ab',
                 user=req.user
                 )
@@ -374,14 +349,6 @@ def edit_activo_bodega(req, id_bodega, id_activo):
 def del_activo_bodega(req, id_bodega, id_activo):
     activo = Activo.objects.get(id=id_activo)
     activo.bodega = None
-    movimiento = Movimiento(
-        fecha=datetime.now(),
-        cantidad=activo.cantidad,
-        nombre_activo=activo.nombre,
-        tipo_movimiento='DE_ab',
-        user=req.user
-        )
-    movimiento.save()
     activo.save()
         
     return redirect(f'/bodega/{id_bodega}/')

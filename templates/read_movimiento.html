@@ -99,8 +99,8 @@
                         <th scope="col">Fecha</th>
                         <th scope="col">Que se hizo</th>
                         <th scope="col">Activo relacionado</th>
-                        <th scope="col">Cantidad</th>
                         <th scope="col">Bodega relacionada</th>
+                        <th scope="col">Tipo de activo relacionado</th>
                         <th scope="col">Usuario ejecutor</th>
                     </tr>
                 </thead>
@@ -138,18 +138,18 @@
                         <td class="text-danger">Se elimino un activo de una bodega</td>
                         {% endif %}
                         
-                        {% if m.nombre_activo == None %}
-                        <td>No aplica</td>
-                        <td>No aplica</td>
-                        {% else %}
-                        <td>{{ m.nombre_activo }}</td>
-                        <td>{{ m.cantidad }}</td>
-                        {% endif %}
-                        {% if m.nombre_bodega == None %}
+                        {% if m.activo_id == None %}
                         <td>No aplica</td>
                         {% else %}
-                        <td>{{ m.nombre_bodega }}</td>
+                        <td>{{ m.activo_id }}</td>
                         {% endif %}
+                        {% if m.bodega_id == None %}
+                        <td>No aplica</td>
+                        {% else %}
+                        <td>{{ m.bodega_id }}</td>
+                        {% endif %}
+                        {% if m.tipo_activo_id == None %}
+                        <td>{{ m.tipo_activo_id }}</td>
                         <td>{{ m.user }}</td>
                     </tr>
                     {% endfor %}

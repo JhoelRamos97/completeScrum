@@ -16,4 +16,4 @@ class Tipo_activoAdmin(admin.ModelAdmin):
 
 @admin.register(Movimiento)
 class MovimientoAdmin(admin.ModelAdmin):
-    list_display = ('fecha', 'tipo_movimiento', 'nombre_activo', 'cantidad', 'nombre_bodega','user')
+    list_display = ('fecha', 'tipo_movimiento', 'activo_id', 'bodega_id', 'tipo_activo_id','user')
