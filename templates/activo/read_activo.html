@@ -109,7 +109,6 @@
                             <td>{{ a.bodega.nombre }}</td>
                             <td>
                                 <a name="" id="" href="{% url 'edit_activo' a.id %}" role="button"  class="btn btn-primary"><i class="bi bi-pencil"></i></a>
-                                <a name="" id="" href="{% url 'del_activo' a.id %}" role="button" class="btn btn-danger" onclick="return confirm('¿Está seguro de eliminar el activo {{ a.nombre }}?');"><i class="bi bi-trash"></i></a>
                             </td>
                         </tr>
                         {% endfor %}

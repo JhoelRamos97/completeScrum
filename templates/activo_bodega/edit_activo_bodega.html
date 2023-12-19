@@ -113,7 +113,11 @@
                                         </label>
                                     </div>
                                     {% else %}
-                                    Bodega actual
+                                        {% if b.nombre == 'Sin bodega'%}
+                                        Actualmente activo ya sin bodega
+                                        {% else %}
+                                        Bodega actual
+                                        {% endif %}
                                     {% endif %}
                                 </td>
                             </tr>

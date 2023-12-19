@@ -149,7 +149,10 @@
                         <td>{{ m.bodega_id }}</td>
                         {% endif %}
                         {% if m.tipo_activo_id == None %}
+                        <td>No aplica</td>
+                        {% else %}
                         <td>{{ m.tipo_activo_id }}</td>
+                        {% endif %}
                         <td>{{ m.user }}</td>
                     </tr>
                     {% endfor %}

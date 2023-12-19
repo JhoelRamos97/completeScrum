@@ -103,9 +103,9 @@ def edit_activo(req, id):
                     fecha=datetime.now(),
                     activo_id       = activo,
                     bodega_id       = activo.bodega,
-                    tipo_activo_id     = activo.tipo_activo,
-                    tipo_movimiento='ED_ac',
-                    user=req.user
+                    tipo_activo_id  = activo.tipo_activo,
+                    tipo_movimiento = 'ED_ac',
+                    user            = req.user
                     )
                 movimiento.save()
                 messages.success(req, f'Se actualizó el activo "{activo.nombre}" correctamente.')
@@ -115,17 +115,6 @@ def edit_activo(req, id):
 
     data = {'form': form, 'accion': 'Actualizar', 'descripcion': 'Cambie los atributos del activo que desea actualizar.'}
     return render(req, 'activo/add_activo.html', data)
-
-@login_required
-def del_activo(req, id):
-    activo = Activo.objects.get(id=id)
-    try:
-        activo.delete()
-        messages.success(req, f'Se eliminó el activo "{activo.nombre}" correctamente.')
-    except Exception as e:
-        messages.error(req, f'No se pudo eliminar el activo. Error: {str(e)}')
-
-    return redirect('/activos/')
 #                                                     #
 #######################################################
 
@@ -151,8 +140,8 @@ def add_bodega(req):
                     fecha=datetime.now(),
                     activo_id       = None,
                     bodega_id       = bodega,
-                    tipo_activo_id     = None,
-                    tipo_movimiento='AD_bo',
+                    tipo_activo_id  = None,
+                    tipo_movimiento = 'AD_bo',
                     user=req.user
                     )
                 movimiento.save()
@@ -190,17 +179,6 @@ def edit_bodega(req, id):
 
     data = {'form': form, 'accion': 'Actualizar', 'descripcion': 'Cambie los atribulos de la bodega que desea actualizar.'}
     return render(req, 'bodega/add_bodega.html', data)
-
-@login_required
-def del_bodega(req, id):
-    try:
-        bodega = Bodega.objects.get(id=id)
-        bodega.delete()
-        messages.success(req, f'Se eliminó la bodega "{bodega.nombre}" correctamente.')
-    except Exception as e:
-        messages.error(req, f'No se pudo eliminar la bodega. Error: {str(e)}')
-    
-    return redirect('/bodegas/')
 #                                                     #
 #######################################################
 
@@ -266,17 +244,6 @@ def edit_tipo_activo(req, id):
 
     data = {'form': form, 'accion': 'Actualizar', 'descripcion': 'Cambie los atribulos del tipo de activo que desea actualizar.'}
     return render(req, 'tipo_activo/add_tipo_activo.html', data)
-
-@login_required
-def del_tipo_activo(req, id):
-    try:
-        tipo_activo = Tipo_activo.objects.get(id=id)
-        tipo_activo.delete()
-        messages.success(req, f'Se eliminó el tipo de activo "{tipo_activo.nombre}" correctamente.')
-    except Exception as e:
-        messages.error(req, f'No se pudo eliminar el tipo de activo. Error: {str(e)}')
-
-    return redirect('read_tipo_activo')
 #                                                     #
 #######################################################
 
@@ -305,9 +272,9 @@ def add_activo_bodega(req, id):
                     fecha=datetime.now(),
                     activo_id       = activo_actual,
                     bodega_id       = bodega,
-                    tipo_activo_id     = activo_actual.tipo_activo,
-                    tipo_movimiento='AD_ab',
-                    user=req.user
+                    tipo_activo_id  = activo_actual.tipo_activo,
+                    tipo_movimiento = 'AD_ab',
+                    user            = req.user
                 )
                 movimiento.save()
             return redirect(f'/bodega/{id}/')
@@ -333,9 +300,9 @@ def edit_activo_bodega(req, id_bodega, id_activo):
                 fecha=datetime.now(),
                 activo_id       = activo,
                 bodega_id       = bodega_selecionada,
-                tipo_activo_id     = activo.tipo_activo,
-                tipo_movimiento='ED_ab',
-                user=req.user
+                tipo_activo_id  = activo.tipo_activo,
+                tipo_movimiento = 'ED_ab',
+                user            = req.user
                 )
             movimiento.save()
             return redirect(f'/bodega/{id_bodega_selecionada}/')
@@ -346,12 +313,13 @@ def edit_activo_bodega(req, id_bodega, id_activo):
     return render(req, 'activo_bodega/edit_activo_bodega.html', data)
 
 @login_required
-def del_activo_bodega(req, id_bodega, id_activo):
+def del_activo_bodega(req, id_activo):
     activo = Activo.objects.get(id=id_activo)
-    activo.bodega = None
+    bodega = Bodega.objects.get(nombre='Sin bodega')
+    activo.bodega = bodega
     activo.save()
         
-    return redirect(f'/bodega/{id_bodega}/')
+    return redirect(f'/bodega/{bodega.id}/')
 #                                                     #
 #######################################################
 

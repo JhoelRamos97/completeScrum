@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
+from django.contrib import messages
 
 class Bodega(models.Model):
     nombre =    models.CharField           (blank=False, null=False, max_length=50)
@@ -13,9 +16,17 @@ class Bodega(models.Model):
         return self.nombre
 
     def clean(self):
+        if self.nombre == "Sin bodega":
+            raise ValidationError("No se puede crear una bodega con el nombre 'Sin bodega'.")
+        
         if self.piso < -5 or self.piso > 5:
             raise ValidationError("El piso debe estar entre -5 y 5.")
     
+@receiver(pre_delete, sender=Bodega)
+def prevent_delete_sin_bodega(sender, instance, **kwargs):
+    if instance.nombre == "Sin bodega":
+        raise ValidationError("No se puede eliminar una bodega con el nombre 'Sin bodega'.")
+
 class Tipo_activo(models.Model):
     nombre =        models.CharField(blank=False, null=False, max_length=50)
     marca =         models.CharField(blank=False, null=False, max_length=50)
@@ -72,10 +83,10 @@ class Movimiento(models.Model):
     def __str__(self):
         tipo_movimiento = dict(self.tipo_movimiento_CHOICES).get(self.tipo_movimiento, 'Desconocido')
         if self.tipo_movimiento in ['AD_ac', 'ED_ac', 'DE_ac', 'AD_ab', 'ED_ab', 'DE_ab']:
-            return f"{self.fecha.strftime('%d/%m/%Y %H:%M:%S')} - {tipo_movimiento} - Cantidad: {self.cantidad} - Nombre del activo: {self.nombre_activo} - Nombre de la bodega: {self.nombre_bodega} - Usuario: {self.user.username}"
+            return f'{self.fecha} - {tipo_movimiento} - {self.activo_id.nombre}'
         elif self.tipo_movimiento in ['AD_bo', 'ED_bo', 'DE_bo']:
-            return f"{self.fecha.strftime('%d/%m/%Y %H:%M:%S')} - {tipo_movimiento} - Nombre de la bodega: {self.nombre_bodega} - Usuario: {self.user.username}"
+            return f'{self.fecha} - {tipo_movimiento} - {self.bodega_id.nombre}'
         elif self.tipo_movimiento in ['AD_ta', 'ED_ta', 'DE_ta']:
-            return f"{self.fecha.strftime('%d/%m/%Y %H:%M:%S')} - {tipo_movimiento} - Usuario: {self.user.username}"
+            return f'{self.fecha} - {tipo_movimiento} - {self.tipo_activo_id.nombre}'
         else:
-            return f"{self.fecha.strftime('%d/%m/%Y %H:%M:%S')} - Tipo de movimiento desconocido - Usuario: {self.user.username}"
+            return f'{self.fecha} - {tipo_movimiento}'
