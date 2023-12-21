@@ -108,27 +108,31 @@
                                 <td>{{ a.costo_alta }}</td>
                                 <td>{{ a.valor_neto }}</td>
                                 <td>{{ a.tipo_activo.nombre }}</td>
-                                <td>{{ a.bodega.nombre }}</td>
-                                <td>
-                                {% if a.bodega.id != bodega.id %}
-                                    <div class="btn-group" role="group" data-bs-toggle="buttons">
-                                        <label class="btn btn-primary active">
-                                            <input
-                                                type="checkbox"
-                                                class="me-2"
-                                                name="activo_seleccionado"
-                                                value="{{ a.id }}"
-                                                autocomplete="off"
-                                            />
-                                        </label>
-                                    </div>
-                                {% else %}
-                                    {% if a.bodega.nombre == 'Sin bodega'%}
-                                    Activo sin bodega
+                                {% for ab in activo_bodega %}
+                                {% if ab.activo.id == a.id and ab.estado == True %}
+                                    <td>{{ ab.bodega.nombre }}</td>
+                                    <td>
+                                    {% if ab.bodega.id != bodega.id %}
+                                        <div class="btn-group" role="group" data-bs-toggle="buttons">
+                                            <label class="btn btn-primary active">
+                                                <input
+                                                    type="checkbox"
+                                                    class="me-2"
+                                                    name="activo_seleccionado"
+                                                    value="{{ a.id }}"
+                                                    autocomplete="off"
+                                                />
+                                            </label>
+                                        </div>
                                     {% else %}
-                                    Activo ya en bodega actual
+                                        {% if ab.bodega.nombre == 'Sin bodega'%}
+                                        Activo sin bodega
+                                        {% else %}
+                                        Activo ya en bodega actual
+                                        {% endif %}
                                     {% endif %}
                                 {% endif %}
+                                {% endfor %}
                                 </td>
                             </tr>
                             {% endfor %}

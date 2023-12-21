@@ -98,9 +98,9 @@
                     <tr>
                         <th scope="col">Fecha</th>
                         <th scope="col">Que se hizo</th>
-                        <th scope="col">Activo relacionado</th>
-                        <th scope="col">Bodega relacionada</th>
-                        <th scope="col">Tipo de activo relacionado</th>
+                        <th scope="col">Cantidad</th>
+                        <th scope="col">Activo</th>
+                        <th scope="col">Bodega</th>
                         <th scope="col">Usuario ejecutor</th>
                     </tr>
                 </thead>
@@ -109,50 +109,22 @@
                     <tr class="">
                         <td scope="row">{{ m.fecha }}</td>
                         <!-- activo -->
-                        {% if m.tipo_movimiento == 'AD_ac' %}
-                        <td class="text-success">Se agrego un activo al inventario</td>
-                        {% elif m.tipo_movimiento == 'ED_ac' %}
-                        <td class="text-primary">Se actualizo un activo en inventario</td>
-                        {% elif m.tipo_movimiento == 'DE_ac' %}
-                        <td class="text-danger">Se elimino un activo del inventario</td>
-                        <!-- bodega -->
-                        {% elif m.tipo_movimiento == 'AD_bo' %}
-                        <td class="text-success">Se registro una nueva bodega</td>
-                        {% elif m.tipo_movimiento == 'ED_bo' %}
-                        <td class="text-primary">Se actualizaron datos de una bodega</td>
-                        {% elif m.tipo_movimiento == 'DE_bo' %}
-                        <td class="text-danger">Se elimino una bodega del registro</td>
-                        <!-- tipo activo -->
-                        {% elif m.tipo_movimiento == 'AD_ta' %}
-                        <td class="text-success">Se agrego un nuevo tipo de activo</td>
-                        {% elif m.tipo_movimiento == 'ED_ta' %}
-                        <td class="text-primary">Se actualizaron datos de un tipo de activo</td>
-                        {% elif m.tipo_movimiento == 'DE_ta' %}
-                        <td class="text-danger">Se elimino un tipo de activo del registro</td>
-                        <!-- activo bodega -->
-                        {% elif m.tipo_movimiento == 'AD_ab' %}
+                        {% if m.tipo_movimiento == 'DF' %}
+                        <td class="text-dark">Movimiento desconocido</td>
+                        {% elif m.tipo_movimiento == 'AS' %}
+                        <td class="text-success">Se agrego un activo pero sin bodega</td>
+                        {% elif m.tipo_movimiento == 'ES' %}
+                        <td class="text-primary">Se dejo al activo sin bodega</td>
+                        {% elif m.tipo_movimiento == 'AD' %}
                         <td class="text-success">Se agrego un activo a una bodega</td>
-                        {% elif m.tipo_movimiento == 'ED_ab' %}
+                        {% elif m.tipo_movimiento == 'ED' %}
                         <td class="text-primary">Se movio un activo de una bodega a otra bodega</td>
-                        {% elif m.tipo_movimiento == 'DE_ab' %}
-                        <td class="text-danger">Se elimino un activo de una bodega</td>
+                        {% elif m.tipo_movimiento == 'DE' %}
+                        <td class="text-danger">Se quito un activo de una bodega</td>
                         {% endif %}
-                        
-                        {% if m.activo_id == None %}
-                        <td>No aplica</td>
-                        {% else %}
-                        <td>{{ m.activo_id }}</td>
-                        {% endif %}
-                        {% if m.bodega_id == None %}
-                        <td>No aplica</td>
-                        {% else %}
-                        <td>{{ m.bodega_id }}</td>
-                        {% endif %}
-                        {% if m.tipo_activo_id == None %}
-                        <td>No aplica</td>
-                        {% else %}
-                        <td>{{ m.tipo_activo_id }}</td>
-                        {% endif %}
+                        <td>{{ m.cantidad }}</td>
+                        <td>{{ m.activo_bodega.activo.nombre }}</td>
+                        <td>{{ m.activo_bodega.bodega.nombre }}</td>
                         <td>{{ m.user }}</td>
                     </tr>
                     {% endfor %}

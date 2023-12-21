@@ -12,13 +12,14 @@ class FormTipoActivo(forms.ModelForm):
         fields = '__all__'
 
 class FormActivo(forms.ModelForm):
+    bodega = forms.ModelChoiceField(queryset=Bodega.objects.all(), required=True)
     class Meta:
         model = Activo
-        fields = ['nombre', 'cantidad', 'descripcion', 'codigo_barra', 'fecha_contable', 'fecha_adquisicion', 'fecha_descontinuacion', 'costo_alta', 'valor_neto', 'tipo_activo', 'bodega']
+        fields = '__all__'
         widgets = {
-            'fecha_contable': forms.DateInput(attrs={'type': 'date'}),
-            'fecha_adquisicion': forms.DateInput(attrs={'type': 'date'}),
-            'fecha_descontinuacion': forms.DateInput(attrs={'type': 'date'}),
+            'fecha_adquisicion': forms.DateInput(attrs={'type': 'text'}),
+            'fecha_contable': forms.DateInput(attrs={'type': 'text'}),
+            'fecha_descontinuacion': forms.DateInput(attrs={'type': 'text'}),
         }
 
     descripcion = forms.CharField(

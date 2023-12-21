@@ -1,17 +1,20 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.http import FileResponse
 from datetime import date, timedelta
 from .forms import FormBodega, FormTipoActivo, FormActivo
-from .models import Bodega, Tipo_activo, Activo, Movimiento
+from .models import Bodega, Tipo_activo, Activo, Movimiento, Activo_bodega
 from datetime import datetime, timedelta
 import io
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
+
+def is_superuser(user):
+    return user.is_superuser
 
 # Create your views here.
 def signin(req):
@@ -47,8 +50,10 @@ def inicio(req):
 #                                                     #
 @login_required
 def read_activo(req):
+    user = req.user
+    activo_bodega = Activo_bodega.objects.all()
     activos = Activo.objects.all()
-    data = {'activos': activos}
+    data = {'activos': activos, 'user': user, 'activo_bodega': activo_bodega}
     return render(req, 'activo/read_activo.html', data)
 
 @login_required
@@ -61,17 +66,35 @@ def add_activo(req):
             if form.is_valid():
                 form.save()
                 activo = Activo.objects.last()
-                movimiento = Movimiento(
-                    fecha=datetime.now(),
-                    activo_id       = activo,
-                    bodega_id       = activo.bodega,
-                    tipo_activo_id     = activo.tipo_activo,
-                    tipo_movimiento ='AD_ac',
-                    user            = req.user
+                bodega_seleccionada = form.cleaned_data.get('bodega')
+                activo_bodega = Activo_bodega(
+                    estado = True,
+                    activo = activo,
+                    bodega = bodega_seleccionada,
                 )
+                activo_bodega.save()
+                activo_bodega = Activo_bodega.objects.last()
+                if activo_bodega.bodega.nombre == 'Sin bodega':
+                    movimiento = Movimiento(
+                        fecha           = datetime.now(),
+                        tipo_movimiento = 'AS',
+                        cantidad        = activo.cantidad,
+                        activo_bodega   = activo_bodega,
+                        user            = req.user
+                    )
+                else:
+                    movimiento = Movimiento(
+                        fecha           = datetime.now(),
+                        tipo_movimiento = 'AD',
+                        cantidad        = activo.cantidad,
+                        activo_bodega   = activo_bodega,
+                        user            = req.user
+                    )
                 movimiento.save()
                 messages.success(req, f'Se agrego el activo "{activo.nombre}" correctamente.')
                 return redirect('/activos/')
+            else:
+                messages.error(req, 'Por favor, corrija los errores.')
         except Exception as e:
             messages.error(req, f'No se pudo agregar el activo. Error: {str(e)}')
 
@@ -98,15 +121,36 @@ def edit_activo(req, id):
         try:
             form = FormActivo(req.POST, instance=activo)
             if form.is_valid():
-                form.save()
-                movimiento = Movimiento(
-                    fecha=datetime.now(),
-                    activo_id       = activo,
-                    bodega_id       = activo.bodega,
-                    tipo_activo_id  = activo.tipo_activo,
-                    tipo_movimiento = 'ED_ac',
-                    user            = req.user
+                bodega_seleccionada = form.cleaned_data.get('bodega')
+                # poner el estado en false a todos los activos_bodega que tengan el activo usando filter
+                activo_bodega = Activo_bodega.objects.filter(activo=activo)
+                for ab in activo_bodega:
+                    ab.estado = False
+                    ab.save()
+                
+                activo_bodega = Activo_bodega(
+                    estado = True,
+                    activo = activo,
+                    bodega = bodega_seleccionada,
+                )
+                activo_bodega.save()
+                if activo_bodega.bodega.nombre == 'Sin bodega':
+                    movimiento = Movimiento(
+                        fecha           = datetime.now(),
+                        tipo_movimiento = 'ES',
+                        cantidad        = activo.cantidad,
+                        activo_bodega   = activo_bodega,
+                        user            = req.user
                     )
+                else:
+                    movimiento = Movimiento(
+                        fecha           = datetime.now(),
+                        tipo_movimiento = 'ED',
+                        cantidad        = activo.cantidad,
+                        activo_bodega   = activo_bodega,
+                        user            = req.user
+                    )
+                form.save()
                 movimiento.save()
                 messages.success(req, f'Se actualizó el activo "{activo.nombre}" correctamente.')
                 return redirect('/activos/')
@@ -115,6 +159,16 @@ def edit_activo(req, id):
 
     data = {'form': form, 'accion': 'Actualizar', 'descripcion': 'Cambie los atributos del activo que desea actualizar.'}
     return render(req, 'activo/add_activo.html', data)
+
+@user_passes_test(is_superuser)
+def del_activo(req, id):
+    activo = Activo.objects.get(id=id)
+    try:
+        activo.delete()
+        messages.success(req, f'Se elimino el activo "{activo.nombre}" correctamente.')
+    except Exception as e:
+        messages.error(req, f'No se pudo eliminar el activo. Error: {str(e)}')
+    return redirect('/activos/')
 #                                                     #
 #######################################################
 
@@ -122,8 +176,9 @@ def edit_activo(req, id):
 #                                                     #
 @login_required
 def read_bodega(req):
+    user = req.user
     bodegas = Bodega.objects.all()
-    data = {'bodegas': bodegas}
+    data = {'bodegas': bodegas, 'user': user}
     return render(req, 'bodega/read_bodega.html', data)
 
 @login_required
@@ -136,15 +191,6 @@ def add_bodega(req):
             if form.is_valid():
                 form.save()
                 bodega = Bodega.objects.last()
-                movimiento = Movimiento(
-                    fecha=datetime.now(),
-                    activo_id       = None,
-                    bodega_id       = bodega,
-                    tipo_activo_id  = None,
-                    tipo_movimiento = 'AD_bo',
-                    user=req.user
-                    )
-                movimiento.save()
                 messages.success(req, f'Se agrego la bodega "{bodega.nombre}" correctamente.')
                 return redirect('/bodegas/')
         except Exception as e:
@@ -163,15 +209,6 @@ def edit_bodega(req, id):
             form = FormBodega(req.POST, instance=bodega)
             if form.is_valid():
                 form.save()
-                movimiento = Movimiento(
-                    fecha=datetime.now(),
-                    activo_id       = None,
-                    bodega_id       = bodega,
-                    tipo_activo_id     = None,
-                    tipo_movimiento='ED_bo',
-                    user=req.user
-                    )
-                movimiento.save()
                 messages.success(req, f'Se actualizó la bodega "{bodega.nombre}" correctamente.')
                 return redirect(f'/bodega/{id}/')
         except Exception as e:
@@ -179,6 +216,19 @@ def edit_bodega(req, id):
 
     data = {'form': form, 'accion': 'Actualizar', 'descripcion': 'Cambie los atribulos de la bodega que desea actualizar.'}
     return render(req, 'bodega/add_bodega.html', data)
+
+@user_passes_test(is_superuser)
+def del_bodega(req, id):
+    bodega = Bodega.objects.get(id=id)
+    if bodega.nombre == "Sin bodega":
+        messages.error(req, f'No se puede eliminar la bodega "{bodega.nombre}".')
+        return redirect('/bodegas/')
+    try:
+        bodega.delete()
+        messages.success(req, f'Se elimino la bodega "{bodega.nombre}" correctamente.')
+    except Exception as e:
+        messages.error(req, f'No se pudo eliminar la bodega. Error: {str(e)}')
+    return redirect('/bodegas/')
 #                                                     #
 #######################################################
 
@@ -195,25 +245,16 @@ def add_tipo_activo(req):
     form = FormTipoActivo()
 
     if req.method == "POST":
-        #try:
+        try:
             form = FormTipoActivo(req.POST)
             if form.is_valid():
                 form.save()
                 tipo_activo = Tipo_activo.objects.last()
                 print(tipo_activo)
-                movimiento = Movimiento(
-                    fecha=datetime.now(),
-                    activo_id       = None,
-                    bodega_id       = None,
-                    tipo_activo_id  = tipo_activo,
-                    tipo_movimiento = 'AD_ta',
-                    user            = req.user
-                    )
-                movimiento.save()
                 messages.success(req, f'Se agrego el tipo de activo "{form.cleaned_data.get("nombre")}" correctamente.')
                 return redirect('/tipos-de-activos/')
-        #except Exception as e:
-            #messages.error(req, f'No se pudo agregar el tipo de activo. Error: {str(e)}')
+        except Exception as e:
+            messages.error(req, f'No se pudo agregar el tipo de activo. Error: {str(e)}')
 
     data = {'form': form, 'accion': 'Agregar', 'descripcion': 'Agregue los atribulos del tipo de activo que desea añadir.'}
     return render(req, 'tipo_activo/add_tipo_activo.html', data)
@@ -228,15 +269,6 @@ def edit_tipo_activo(req, id):
             form = FormTipoActivo(req.POST, instance=tipo_activo)
             if form.is_valid():
                 form.save()
-                movimiento = Movimiento(
-                    fecha=datetime.now(),
-                    activo_id       = None,
-                    bodega_id       = None,
-                    tipo_activo_id  = tipo_activo,
-                    tipo_movimiento = 'ED_ta',
-                    user=req.user
-                    )
-                movimiento.save()
                 return redirect('/tipos-de-activos/')
             messages.success(req, f'Se actualizó el tipo de activo "{tipo_activo.nombre}" correctamente.')
         except Exception as e:
@@ -244,6 +276,16 @@ def edit_tipo_activo(req, id):
 
     data = {'form': form, 'accion': 'Actualizar', 'descripcion': 'Cambie los atribulos del tipo de activo que desea actualizar.'}
     return render(req, 'tipo_activo/add_tipo_activo.html', data)
+
+@user_passes_test(is_superuser)
+def del_tipo_activo(req, id):
+    tipo_activo = Tipo_activo.objects.get(id=id)
+    try:
+        tipo_activo.delete()
+        messages.success(req, f'Se elimino el tipo de activo "{tipo_activo.nombre}" correctamente.')
+    except Exception as e:
+        messages.error(req, f'No se pudo eliminar el tipo de activo. Error: {str(e)}')
+    return redirect('/tipos-de-activos/')
 #                                                     #
 #######################################################
 
@@ -252,7 +294,7 @@ def edit_tipo_activo(req, id):
 @login_required
 def read_activo_bodega(req, id):
     bodega = Bodega.objects.get(id=id)
-    activos = Activo.objects.filter(bodega=id)
+    activos = Activo.objects.filter(activo_bodega__bodega=id, activo_bodega__estado=True)
     data = {'bodega': bodega, 'activos': activos}
     return render(req, 'activo_bodega/read_activo_bodega.html', data)
 
@@ -260,28 +302,37 @@ def read_activo_bodega(req, id):
 def add_activo_bodega(req, id):
     bodega = Bodega.objects.get(id=id)
     activos = Activo.objects.all()
+    activo_bodega = Activo_bodega.objects.all()
 
     if req.method == 'POST':
         try:
             activos_seleccionados = req.POST.getlist('activo_seleccionado')
-            Activo.objects.filter(id__in=activos_seleccionados).update(bodega=id)
-
             for activo_id in activos_seleccionados:
                 activo_actual = Activo.objects.get(id=activo_id)
+                activo_bodega_actual = Activo_bodega.objects.filter(activo=activo_actual)
+                for ab in activo_bodega_actual:
+                    ab.estado = False
+                    ab.save()
+            
+                nuevo_activo_bodega = Activo_bodega(
+                    estado = True,
+                    activo = activo_actual,
+                    bodega = bodega
+                )
+                nuevo_activo_bodega.save()  # Don't forget to save the new Activo_bodega
+            
                 movimiento = Movimiento(
                     fecha=datetime.now(),
-                    activo_id       = activo_actual,
-                    bodega_id       = bodega,
-                    tipo_activo_id  = activo_actual.tipo_activo,
-                    tipo_movimiento = 'AD_ab',
+                    tipo_movimiento = 'AD',
+                    cantidad        = activo_actual.cantidad,
+                    activo_bodega   = nuevo_activo_bodega,
                     user            = req.user
                 )
                 movimiento.save()
-            return redirect(f'/bodega/{id}/')
         except Exception as e:
             messages.error(req, f'No se pudo mover el activo. Error: {str(e)}')
     
-    data = {'bodega': bodega, 'activos': activos}
+    data = {'bodega': bodega, 'activos': activos, 'activo_bodega': activo_bodega}
     return render(req, 'activo_bodega/add_activo_bodega.html', data)
 
 @login_required
@@ -294,15 +345,32 @@ def edit_activo_bodega(req, id_bodega, id_activo):
         try:
             id_bodega_selecionada = req.POST.get('bodega_seleccionada')
             bodega_selecionada = Bodega.objects.get(id=id_bodega_selecionada)
-            activo.bodega = bodega_selecionada
-            activo.save()
-            movimiento = Movimiento(
-                fecha=datetime.now(),
-                activo_id       = activo,
-                bodega_id       = bodega_selecionada,
-                tipo_activo_id  = activo.tipo_activo,
-                tipo_movimiento = 'ED_ab',
-                user            = req.user
+            activo_bodega = Activo_bodega.objects.filter(activo=activo)
+            for ab in activo_bodega:
+               ab.estado = False
+               ab.save()
+
+            activo_bodega = Activo_bodega(
+                estado = True,
+                activo = activo,
+                bodega = bodega_selecionada
+            )
+            activo_bodega.save()
+            if bodega.nombre == 'Sin bodega':
+                movimiento = Movimiento(
+                    fecha           = datetime.now(),
+                    tipo_movimiento = 'AD',
+                    cantidad        = activo.cantidad,
+                    activo_bodega   = activo_bodega,
+                    user            = req.user
+                )
+            else:
+                movimiento = Movimiento(
+                    fecha           = datetime.now(),
+                    tipo_movimiento = 'ED',
+                    cantidad        = activo.cantidad,
+                    activo_bodega   = activo_bodega,
+                    user            = req.user
                 )
             movimiento.save()
             return redirect(f'/bodega/{id_bodega_selecionada}/')
@@ -371,47 +439,21 @@ def generar_pdf(req):
     titulo = Paragraph(f'Informe de todos los movimientos del sistema de inventario durante el ultimo mes', styles['Title'])
     elements.append(titulo)
     for m in movimientos:
-        if m.tipo_movimiento == 'AD_ac':
-            tipo_movimiento = 'Se agrego un activo al inventario'
-        elif m.tipo_movimiento == 'ED_ac':
-            tipo_movimiento = 'Se actualizo un activo en inventario'
-        elif m.tipo_movimiento == 'DE_ac':
-            tipo_movimiento = 'Se elimino un activo del inventario'
-        elif m.tipo_movimiento == 'AD_bo':
-            tipo_movimiento = 'Se registro una nueva bodega'
-        elif m.tipo_movimiento == 'ED_bo':
-            tipo_movimiento = 'Se actualizaron datos de una bodega'
-        elif m.tipo_movimiento == 'DE_bo':
-            tipo_movimiento = 'Se elimino una bodega del registro'
-        elif m.tipo_movimiento == 'AD_ta':
-            tipo_movimiento = 'Se agrego un nuevo tipo de activo'
-        elif m.tipo_movimiento == 'ED_ta':
-            tipo_movimiento = 'Se actualizaron datos de un tipo de activo'
-        elif m.tipo_movimiento == 'DE_ta':
-            tipo_movimiento = 'Se elimino un tipo de activo del registro'
-        elif m.tipo_movimiento == 'AD_ab':
+        if m.tipo_movimiento == 'SB':
+            tipo_movimiento = 'Se agrego un activo pero sin bodega'
+        elif m.tipo_movimiento == 'AD':
             tipo_movimiento = 'Se agrego un activo a una bodega'
-        elif m.tipo_movimiento == 'ED_ab':
+        elif m.tipo_movimiento == 'ED':
             tipo_movimiento = 'Se movio un activo de una bodega a otra bodega'
-        elif m.tipo_movimiento == 'DE_ab':
+        elif m.tipo_movimiento == 'DE':
             tipo_movimiento = 'Se quito un activo de una bodega'
         else:
             tipo_movimiento = 'Desconocido'
-        if m.nombre_activo == None:
-            nombre_activo = 'Ninguno'
-        else:
-            nombre_activo = m.nombre_activo
-        if m.nombre_bodega == None:
-            nombre_bodega = 'Ninguno'
-        else:
-            nombre_bodega = m.nombre_bodega
-        if m.cantidad == None:
-            cantidad = 'Ninguno'
-        else:
-            cantidad = m.cantidad
+        cantidad = m.cantidad
+
         fecha = m.fecha.strftime("%d/%m/%Y %H:%M:%S")
         # Añade un párrafo al PDF
-        texto = f'Fecha: {fecha} | Tipo de movimiento: {tipo_movimiento} | Cantidad: {cantidad} | Nombre del activo: {nombre_activo} | Nombre de la bodega: {nombre_bodega} | Usuario: {m.user.username}'
+        texto = f'Fecha: {fecha} | Tipo de movimiento: {tipo_movimiento} | Cantidad: {cantidad} | Nombre del activo: {m.activo_bodega.activo.nombre} | Nombre de la bodega: {m.activo_bodega.bodega.nombre} | Usuario: {m.user.username}'
         parrafo = Paragraph(texto, styles['Normal'])
         elements.append(parrafo)
         # Añade un espacio al PDF
