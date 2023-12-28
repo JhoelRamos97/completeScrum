@@ -70,11 +70,18 @@
     <!-- MAIN -->
     <main>
         <div class="container">
-            {% for field in form %}
-            {% for error in field.errors %}
-            <p>{{ error }}</p>
-            {% endfor %}
-            {% endfor %}
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+                {% for field in form %}
+                {% for error in field.errors %}
+                <li class="text-danger">{{ error }}</li>
+                {% endfor %}
+                {% endfor %}
+            </ul>
+            {% endif %}
             {% block content %}
             <form method="POST">
                 {% csrf_token %}
@@ -118,6 +125,23 @@
                 <label for="{{ form.codigo_barra.id_for_label }}">Codigo de barras del activo:</label>
                 <div class="form-group">
                     {{ form.codigo_barra }}
+                    <!--script para que con solo se puedan ingresar numeros en el codigo de barras-->
+                    <script>
+                        document.getElementById("{{ form.codigo_barra.id_for_label }}").type = "number";
+                        document.getElementById("{{ form.codigo_barra.id_for_label }}").min = "0";
+                        document.getElementById("{{ form.codigo_barra.id_for_label }}").step = "1";
+                        document.getElementById("{{ form.codigo_barra.id_for_label }}").onkeypress = function(e) {
+                            if (e.key == "-") {
+                                return false;
+                            }
+                            if (e.key == "e") {
+                                return false;
+                            }
+                            if (e.target.value.length >= 20) {
+                                return false;
+                            }
+                        }
+                    </script>
                 </div>
                 <br>
 

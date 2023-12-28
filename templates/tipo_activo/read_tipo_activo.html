@@ -95,6 +95,14 @@
                             <td scope="row">{{ t.unidad_inacap }}</td>
                             <td>
                                 <a name="" id="" href="{% url 'edit_tipo_activo' t.id %}" role="button" class="btn btn-primary"><i class="bi bi-pencil"></i></a>
+                                <!-- solamente los super usuarios puede eliminar un tipo de activo-->
+                                {%if not user.is_superuser %}
+                                <div title='Solo el superusuario puede eliminar el tipo de activo'>
+                                    <button name="" id="deleteButton" role="button" class="btn btn-danger" disabled><i class="bi bi-trash"></i></a>
+                                </div>
+                                {% else %}
+                                <a name="" id="" href="{% url 'del_tipo_activo' t.id %}" role="button" class="btn btn-danger" onclick="return confirm('¿Está seguro de eliminar el tipo de activo?');"><i class="bi bi-trash"></i></a>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}

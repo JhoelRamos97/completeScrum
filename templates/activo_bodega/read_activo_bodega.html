@@ -88,6 +88,25 @@
             </div>
             <div class="text-center">
                 <a href="{% url 'edit_bodega' bodega.id %}" class="btn btn-primary btn-lg text-white">Actualizar datos</a>
+                {% if not activos and user.is_superuser %}
+                <a href="{% url 'del_bodega' bodega.id %}" class="btn btn-danger btn-lg text-white" onclick="return doubleConfirm();">Eliminar bodega</a>
+                <script>
+                    function doubleConfirm() {
+                        var confirm1 = confirm('¿Está seguro de eliminar la bodega?. Esta acción no se puede deshacer.');
+                        if (confirm1) {
+                            var confirm2 = confirm('¿Está absolutamente seguro? Esta accion conlleva eliminar todo registro relacionado en los movimientos.');
+                            if (confirm2) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                </script>
+                {% else %}
+                <div title="Debes ser super usuario y que la bodega no contenga ningun activo para poder eliminar la bodega">
+                    <button class="btn btn-danger btn-lg text-white" disabled>Eliminar bodega</button>
+                </div>
+                {% endif %}
             </div>
             <h2>Activos en la bodega:</h2>
             <div class="table-responsive">
@@ -127,7 +146,13 @@
                     </tbody>
                 </table>
                 <div class="text-center">
+                    {% if not activos_all %}
+                    <div title="No hay ningun activo registrado">
+                        <button class="btn btn-success btn-lg text-white" disabled>Mover activos a esta bodega</button>
+                    </div>
+                    {% else %}
                     <a href="{% url 'add_activo_bodega' bodega.id %}" class="btn btn-primary btn-lg text-white">Mover activos a esta bodega</a>
+                    {% endif %}
                     <a href="{% url 'read_bodega'%}" class="btn btn-dark btn-lg text-white">Volver al menu</a>
                 </div>
             </div>
@@ -171,7 +196,13 @@
                     </tbody>
                 </table>
                 <div class="text-center">
+                    {% if not activos_all %}
+                    <div title="No hay ningun activo registrado">
+                        <button class="btn btn-success btn-lg text-white" disabled>Quitar activos de una bodega</button>
+                    </div>
+                    {% else %}
                     <a href="{% url 'add_activo_bodega' bodega.id %}" class="btn btn-primary btn-lg text-white">Quitar activos de una bodega</a>
+                    {% endif %}
                     <a href="{% url 'read_bodega'%}" class="btn btn-dark btn-lg text-white">Volver al menu</a>
                 </div>
             </div>

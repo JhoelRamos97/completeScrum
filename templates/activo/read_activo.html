@@ -113,13 +113,39 @@
                             {% endfor %}
                             <td>
                                 <a name="" id="" href="{% url 'edit_activo' a.id %}" role="button"  class="btn btn-primary"><i class="bi bi-pencil"></i></a>
+                                <!-- el boton eliminar solo esta disponible si el usuario es superusuario -->
+                                {% if user.is_superuser %}
+                                <a name="" id="" href="{% url 'del_activo' a.id %}" role="button" class="btn btn-danger" onclick="return doubleConfirm();"><i class="bi bi-trash"></i></a>
+                                <script>
+                                    function doubleConfirm() {
+                                        var confirm1 = confirm('¿Está seguro de eliminar el activo? Si desea dejar al activo sin bodega, seleccione la bodega del activo como "Sin bodega".');
+                                        if (confirm1) {
+                                            var confirm2 = confirm('¿Está absolutamente seguro? Esta acción no se puede deshacer. Esta accion conlleva eliminar todo registro relacionado en los movimientos.');
+                                            if (confirm2) {
+                                                return true;
+                                            }
+                                        }
+                                        return false;
+                                    }
+                                </script>
+                                {% else %}
+                                <div title='Solo el superusuario puede eliminar activos'>
+                                    <a name="" id="deleteButton" href="{% url 'del_activo' a.id %}" role="button" class="btn btn-danger disabled"><i class="bi bi-trash"></i></a>
+                                </div>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
                 <div class="text-center">
+                    {% if not tipo_activo  %}
+                    <div title="Debes añadir un tipo de activo para añadir activos">
+                        <button class="btn btn-success btn-lg text-white" disabled>Agregar activo</button>
+                    </div>
+                    {% else %}
                     <a href="{% url 'add_activo' %}" class="btn btn-success btn-lg text-white">Agregar activo</a>
+                    {% endif %}
                     <a href="{% url 'inicio' %}" class="btn btn-dark btn-lg text-white">Volver al menu</a>
                 </div>
             </div>

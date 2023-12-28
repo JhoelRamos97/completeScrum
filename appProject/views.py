@@ -52,8 +52,11 @@ def inicio(req):
 def read_activo(req):
     user = req.user
     activo_bodega = Activo_bodega.objects.all()
+    tipo_activo = Tipo_activo.objects.all()
+    if tipo_activo.count() == 0:
+        messages.error(req, 'No se puede agregar un activo sin ningun tipo de activo registrado. Por favor, agregue un tipo de activo.')
     activos = Activo.objects.all()
-    data = {'activos': activos, 'user': user, 'activo_bodega': activo_bodega}
+    data = {'activos': activos, 'user': user, 'activo_bodega': activo_bodega, 'tipo_activo': tipo_activo}
     return render(req, 'activo/read_activo.html', data)
 
 @login_required
@@ -94,7 +97,7 @@ def add_activo(req):
                 messages.success(req, f'Se agrego el activo "{activo.nombre}" correctamente.')
                 return redirect('/activos/')
             else:
-                messages.error(req, 'Por favor, corrija los errores.')
+                messages.error(req, f'Los datos ingresados no son validos.')
         except Exception as e:
             messages.error(req, f'No se pudo agregar el activo. Error: {str(e)}')
 
@@ -160,15 +163,26 @@ def edit_activo(req, id):
     data = {'form': form, 'accion': 'Actualizar', 'descripcion': 'Cambie los atributos del activo que desea actualizar.'}
     return render(req, 'activo/add_activo.html', data)
 
-@user_passes_test(is_superuser)
+@login_required
 def del_activo(req, id):
-    activo = Activo.objects.get(id=id)
-    try:
-        activo.delete()
-        messages.success(req, f'Se elimino el activo "{activo.nombre}" correctamente.')
-    except Exception as e:
-        messages.error(req, f'No se pudo eliminar el activo. Error: {str(e)}')
-    return redirect('/activos/')
+    if req.user.is_superuser:
+        activo = Activo.objects.get(id=id)
+        activo_bodega = Activo_bodega.objects.filter(activo=activo)
+        try:
+            #borrar todos los movimientos donde este activo_bodega
+            for ab in activo_bodega:
+                movimiento = Movimiento.objects.filter(activo_bodega=ab)
+                movimiento.delete()
+            #borrar todos los activos_bodega donde este activo
+            activo_bodega.delete()
+            activo.delete()
+            messages.success(req, f'Se elimino el activo "{activo.nombre}" correctamente.')
+        except Exception as e:
+            messages.error(req, f'No se pudo eliminar el activo. Error: {str(e)}')
+        return redirect('/activos/')
+    else:
+        messages.error(req, f'Solamente los super usuarios pueden eliminar un activo.')
+        return redirect('/activos/')
 #                                                     #
 #######################################################
 
@@ -217,18 +231,28 @@ def edit_bodega(req, id):
     data = {'form': form, 'accion': 'Actualizar', 'descripcion': 'Cambie los atribulos de la bodega que desea actualizar.'}
     return render(req, 'bodega/add_bodega.html', data)
 
-@user_passes_test(is_superuser)
+@login_required
 def del_bodega(req, id):
-    bodega = Bodega.objects.get(id=id)
-    if bodega.nombre == "Sin bodega":
-        messages.error(req, f'No se puede eliminar la bodega "{bodega.nombre}".')
+    if req.user.is_superuser:
+        bodega = Bodega.objects.get(id=id)
+        if bodega.nombre == "Sin bodega":
+            messages.error(req, f'No se puede eliminar la bodega "{bodega.nombre}".')
+            return redirect('/bodegas/')
+        try:
+            #borrar todos los activos_bodega donde este bodega
+            activo_bodega = Activo_bodega.objects.filter(bodega=bodega)
+            for ab in activo_bodega:
+                movimiento = Movimiento.objects.filter(activo_bodega=ab)
+                movimiento.delete()
+            activo_bodega.delete()
+            bodega.delete()
+            messages.success(req, f'Se elimino la bodega "{bodega.nombre}" correctamente.')
+        except Exception as e:
+            messages.error(req, f'No se pudo eliminar la bodega. Error: {str(e)}')
         return redirect('/bodegas/')
-    try:
-        bodega.delete()
-        messages.success(req, f'Se elimino la bodega "{bodega.nombre}" correctamente.')
-    except Exception as e:
-        messages.error(req, f'No se pudo eliminar la bodega. Error: {str(e)}')
-    return redirect('/bodegas/')
+    else:
+        messages.error(req, f'Solamente los super usuarios pueden eliminar una bodega.')
+        return redirect(f'/bodega/{id}')
 #                                                     #
 #######################################################
 
@@ -277,15 +301,24 @@ def edit_tipo_activo(req, id):
     data = {'form': form, 'accion': 'Actualizar', 'descripcion': 'Cambie los atribulos del tipo de activo que desea actualizar.'}
     return render(req, 'tipo_activo/add_tipo_activo.html', data)
 
-@user_passes_test(is_superuser)
+@login_required
 def del_tipo_activo(req, id):
-    tipo_activo = Tipo_activo.objects.get(id=id)
-    try:
-        tipo_activo.delete()
-        messages.success(req, f'Se elimino el tipo de activo "{tipo_activo.nombre}" correctamente.')
-    except Exception as e:
-        messages.error(req, f'No se pudo eliminar el tipo de activo. Error: {str(e)}')
-    return redirect('/tipos-de-activos/')
+    if req.user.is_superuser:
+        tipo_activo = Tipo_activo.objects.get(id=id)
+        #comprobar que el tipo de activo no este en ningun activo
+        activos = Activo.objects.filter(tipo_activo=tipo_activo)
+        if activos.count() > 0:
+            messages.error(req, f'No se puede eliminar el tipo de activo "{tipo_activo.nombre}" porque hay activos que lo usan.')
+            return redirect('/tipos-de-activos/')
+        try:
+            tipo_activo.delete()
+            messages.success(req, f'Se elimino el tipo de activo "{tipo_activo.nombre}" correctamente.')
+        except Exception as e:
+            messages.error(req, f'No se pudo eliminar el tipo de activo. Error: {str(e)}')
+        return redirect('/tipos-de-activos/')
+    else:
+        messages.error(req, f'Solamente los super usuarios pueden eliminar un tipo de activo.')
+        return redirect('/tipos-de-activos/')
 #                                                     #
 #######################################################
 
@@ -295,7 +328,10 @@ def del_tipo_activo(req, id):
 def read_activo_bodega(req, id):
     bodega = Bodega.objects.get(id=id)
     activos = Activo.objects.filter(activo_bodega__bodega=id, activo_bodega__estado=True)
-    data = {'bodega': bodega, 'activos': activos}
+    activos_all = Activo.objects.all()
+    if activos_all.count() == 0:
+        messages.error(req, f'No se puede agregar activos a la bodega sin activos registrados. Por favor, agregue un activo.')
+    data = {'bodega': bodega, 'activos': activos, 'activos_all': activos_all}
     return render(req, 'activo_bodega/read_activo_bodega.html', data)
 
 @login_required
@@ -319,7 +355,7 @@ def add_activo_bodega(req, id):
                     activo = activo_actual,
                     bodega = bodega
                 )
-                nuevo_activo_bodega.save()  # Don't forget to save the new Activo_bodega
+                nuevo_activo_bodega.save()
             
                 movimiento = Movimiento(
                     fecha=datetime.now(),
@@ -329,6 +365,7 @@ def add_activo_bodega(req, id):
                     user            = req.user
                 )
                 movimiento.save()
+            return redirect(f'/bodega/{id}/')
         except Exception as e:
             messages.error(req, f'No se pudo mover el activo. Error: {str(e)}')
     
@@ -382,12 +419,28 @@ def edit_activo_bodega(req, id_bodega, id_activo):
 
 @login_required
 def del_activo_bodega(req, id_activo):
+    #solamente pone el activo en la bodega "Sin bodega", y pone un registro en movimiento de ello
     activo = Activo.objects.get(id=id_activo)
-    bodega = Bodega.objects.get(nombre='Sin bodega')
-    activo.bodega = bodega
-    activo.save()
-        
-    return redirect(f'/bodega/{bodega.id}/')
+    activo_bodega = Activo_bodega.objects.filter(activo=activo)
+    for ab in activo_bodega:
+        ab.estado = False
+        ab.save()
+    activo_bodega = Activo_bodega(
+        estado = True,
+        activo = activo,
+        bodega = Bodega.objects.get(nombre='Sin bodega')
+    )
+    activo_bodega.save()
+    movimiento = Movimiento(
+        fecha           = datetime.now(),
+        tipo_movimiento = 'DE',
+        cantidad        = activo.cantidad,
+        activo_bodega   = activo_bodega,
+        user            = req.user
+    )
+    movimiento.save()
+    sin_bodega = Bodega.objects.get(nombre='Sin bodega')
+    return redirect(f'/bodega/{sin_bodega.id}/')
 #                                                     #
 #######################################################
 

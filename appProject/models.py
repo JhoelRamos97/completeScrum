@@ -36,9 +36,9 @@ class Tipo_activo(models.Model):
         return self.nombre
     
 class Activo(models.Model):
-    nombre =                models.CharField           (blank=False, null=False, verbose_name="Nombre del activo",           max_length=50)
+    nombre =                models.CharField           (blank=False, null=False, verbose_name="Nombre del activo",      max_length=50)
     cantidad =              models.PositiveIntegerField(blank=False, null=False, verbose_name="Cantidad del activo")
-    descripcion =           models.CharField           (blank=False, null=False, verbose_name="Descripcion del activo",      max_length=1000)
+    descripcion =           models.CharField           (blank=False, null=False, verbose_name="Descripcion del activo", max_length=1000)
     codigo_barra =          models.CharField           (blank=False, null=False, verbose_name="Codigo de barras del activo", max_length=50)
     fecha_adquisicion =     models.DateField           (blank=False, null=False, verbose_name="Fecha de adquisicion del activo")
     fecha_contable =        models.DateField           (blank=False, null=False, verbose_name="Fecha contable del activo")
@@ -49,6 +49,11 @@ class Activo(models.Model):
 
     def __str__(self):
         return self.nombre
+    
+    def clean_fields(self, exclude=None):
+        super(Activo, self).clean_fields(exclude=exclude)
+        if self.codigo_barra.isdigit() == False:
+            raise ValidationError({'codigo_barra': ("El codigo de barras solo puede contener numeros.")})
     
     def clean(self):
         if self.cantidad == 0:
